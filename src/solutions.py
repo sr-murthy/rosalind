@@ -1,7 +1,7 @@
 __all__ = [
     'basecount',
     'count_dna_motif',
-    'sequence_distance_matrix',
+    'fibo_rabbits',
     'gc_content',
     'lexicographic_kmers',
     'linguistic_sequence_complexity',
@@ -13,6 +13,7 @@ __all__ = [
     'protein_mass',
     'reverse_complement',
     'RNA_CODON_TABLE',
+    'sequence_distance_matrix',
     'signed_permutations',
     'transcribe_dna_to_rna',
     'translate_rna_to_protein',
@@ -213,6 +214,64 @@ def reverse_complement(dna_seq: str | Bio.Seq.Seq, /) -> str:
     return str(dna_seq)[::-1].translate(str.maketrans("ATCG", "TAGC"))
 
 
+def fibo_rabbits(n: int, k: int, /) -> int:
+    """:py:class:`int` : The number of rabbit pairs alive after ``n`` months, starting with 1 pair and with each reproductive-age pair producing ``k`` pairs.
+
+    Solution to the Rabbits and Recurrence Relations problem (FIB):
+
+    https://rosalind.info/problems/fib/
+
+    .. note::
+
+       In month ``n`` the number of rabbit pairs present is equal to the
+       number of the previous month's pairs plus any new pairs (offspring
+       pairs). We are told that each reproductive-age rabbit pair produces
+       ``k`` pairs. The number of new pairs produced in month ``n`` is equal
+       to the number that were alive two months prior. If ``f`` is the
+       function then this gives the formula:
+       ::
+
+            f(n, k) = f(n - 1, k) + 3 * f(n - 2, k)
+
+    This solution is iterative (and non-recursive), to avoid recursion errors
+    caused by large values of ``n``.
+
+    Parameters
+    ----------
+    n  : int
+        The number of months elapsed.
+
+    k : int
+        The number of pairs produced by each reproduction-age rabbit pair.
+
+    Returns
+    -------
+    int
+        The number of rabbit pairs alive after ``n`` months, starting with 1
+        pair, and with each reproductive-age pair producing ``k`` pairs.
+
+    Examples
+    --------
+    >>> fibo_rabbits(5, 3)
+    19
+    """
+    # An inner Fibo generator depending on ``k`` only, that can
+    # generate infinitely.
+    def fibo_inf(k: int) -> typing.Generator[int, None, None]:
+        yield 0
+        yield 1
+
+        a = 0
+        b = 1
+        while True:
+            a, b = b, k * a + b
+            yield b
+
+    for i, x in enumerate(fibo_inf(k)):
+        if i == n:
+            return x
+
+
 def gc_content(dna_seq: str | Bio.Seq.Seq, /) -> float:
     """:py:class:`float` : The proportion of bases in the DNA sequence which are either ``'C'`` or ``'G'``.
 
@@ -371,7 +430,7 @@ def count_dna_motif(dna_seq: str | Bio.Seq.Seq, dna_subseq: str | Bio.Seq.Seq, /
     Returns
     -------
     tuple
-        Tuple of starting positions of all occurrences of the DNA subseqence
+        Tuple of starting positions of all occurrences of the DNA subsequence
         in the given DNA sequence.
 
     Examples
@@ -554,6 +613,19 @@ def profile_matrix(dna_seqs: typing.Iterable[str | Bio.Seq.Seq]) -> tuple:
     -------
     tuple
         The consensus string and profile matrix for the DNA sequences.
+
+    Examples
+    --------
+    >>> seqs = ['ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT']
+    >>> cs, pm = profile_matrix(seqs)
+    >>> print(cs)
+    ATGCAACT
+    >>> for i, b in enumerate('ACGT'):
+    ...     print(f'{c}: ' + ' '.join(map(str, pm[i])))
+    A: 5 1 0 0 5 5 0 0
+    C: 0 0 1 4 2 0 6 1
+    G: 1 1 6 3 0 1 0 0
+    T: 1 5 0 0 0 1 1 6
     """
     n = len(dna_seqs[0])
 
