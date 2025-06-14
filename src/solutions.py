@@ -9,6 +9,7 @@ __all__ = [
     'max_gc_content',
     'MONOISOTOPIC_MASS_TABLE',
     'point_mutations',
+    'profile_matrix',
     'protein_mass',
     'reverse_complement',
     'RNA_CODON_TABLE',
@@ -535,6 +536,40 @@ def sequence_distance_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> lis
         i += 1
 
     return mat
+
+
+def profile_matrix(dna_seqs: typing.Iterable[str | Bio.Seq.Seq]) -> tuple:
+    """:py:class:`tuple` : Returns the consensus string and profile matrix for a collection of DNA sequences/strings.
+
+    Solution to the Consensus and Profile problem (CONS):
+
+    https://rosalind.info/problems/cons/
+
+    Parameters
+    ----------
+    dna_seqs : typing.Iterable
+        A collection of DNA sequences (or strings).
+
+    Returns
+    -------
+    tuple
+        The consensus string and profile matrix for the DNA sequences.
+    """
+    n = len(dna_seqs[0])
+
+    profile_matrix = [list([0] * n) for i in range(4)]
+
+    consensus_str = list([''] * n)
+
+    base_str = 'ACGT'
+
+    for j in range(n):
+        for i, b in enumerate(base_str):
+            profile_matrix[i][j] = sum(1 for s in dna_seqs if s[j] == b)
+            if profile_matrix[i][j] == max(profile_matrix[x][j] for x in range(4)):
+                consensus_str[j] = b
+
+    return ''.join(consensus_str), profile_matrix
 
 
 def signed_permutations(n: int, /) -> typing.Generator[list[int], None, None]:
