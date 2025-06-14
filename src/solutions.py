@@ -443,7 +443,6 @@ def longest_common_substring(strings: typing.Iterable[str | Bio.Seq.Seq], /) -> 
     max_len_str = sorted_strs[-1]
     max_str_len = len(max_len_str)
     str_len = len(max_len_str)
-    lcs = ''
 
     # The outermost ``while`` loop on substring length, which descends from the
     # length of a largest substring (not necessarily unique) to minimal
@@ -452,25 +451,24 @@ def longest_common_substring(strings: typing.Iterable[str | Bio.Seq.Seq], /) -> 
         i = 0
         # The innermost ``while`` loop on substrings of length ``substr_len``
         while i < max_str_len - str_len + 1:
-            cur_str = max_len_str[i: i + str_len]
-            # If the current substring isn't common or isn't longer than the
-            # current longest common motif then skip to the next substring
-            # sliding window
-            if any(cur_str not in str for str in sorted_strs) or len(cur_str) <= len(lcs):
+            cur_substr = max_len_str[i: i + str_len]
+            # If the current substring isn't common then skip to the next
+            # substring
+            if any(cur_substr not in str for str in sorted_strs):
                 i += 1
                 continue
 
             # The current substring must be the common largest, as it hasn't
             # failed the checks, so return it.
-            return cur_str
+            return cur_substr
 
         # Otherwise decrement the substring length, and start the next
         # iteration of the outer loop
         str_len -= 1
 
-    # At this point the LCM must be an empty string, as it wasn't returned
-    # in the loop, so just return it.
-    return lcs
+    # At this point the LCS must be an empty string, as there was no non-empty
+    # substring returned in the inner loop, so just return it.
+    return ''
 
 
 def sequence_distance_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> list[list[float]]:
