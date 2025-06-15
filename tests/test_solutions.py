@@ -120,6 +120,12 @@ def test_lexicographic_kmers():
     ]
 
 
+def test_kmer_composition():
+    assert tuple(kmer_composition('CTTCGAAAG', 'ACGT', 2)) == (
+        1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1
+    )
+
+
 def test_variable_length_lexicographic_ordering():
     assert list(variable_length_lexicographic_ordering('DNA', k=2)) == [
         'D',

@@ -3,6 +3,7 @@ __all__ = [
     'count_dna_motif',
     'fibo_rabbits',
     'gc_content',
+    'kmer_composition',
     'lexicographic_kmers',
     'linguistic_sequence_complexity',
     'longest_common_substring',
@@ -776,6 +777,40 @@ def lexicographic_kmers(s: typing.Sequence[str], k: int) -> typing.Generator[str
     yield from map(lambda s: ''.join(s), product(s, repeat=k))
 
 
+def kmer_composition(s: str | Bio.Seq.Seq, A: str, k: int) -> typing.Generator[int, None, None]:
+    """:py:class:`typing.Generator` : Generates the ``k``-mer composition of a string with respect to an (ordered) alphabet.
+
+    Solution to the k-Mer Composition problem (KMER):
+
+    https://rosalind.info/problems/kmer/
+
+    .. note::
+
+       The function has been implemented to generate, because ``k``-mers
+       can grow very rapidly depending on the size of the alphabet.
+
+    Parameters
+    ----------
+    s : str
+        The string/sequence for which the ``k``-mer composition is sought.
+
+    A : str, list, tuple
+        The (ordered) alphabet from which the string/sequence is formed.
+
+    k : int
+        The (fixed) length of the kmer
+
+    Yields
+    -------
+    int
+        A generator of ``k``-mer frequencies in the given string/sequence, where
+        ``i``-value is the frequency of the ``i``-th kmer of ``A`` in ``s``, and
+        ``i`` is the index of the kmer in the natural ordering of all ``k``-mers
+        of ``A``.
+    """
+    yield from (s.count(kmer) for kmer in lexicographic_kmers(A, k=k))
+
+
 def variable_length_lexicographic_ordering(s: typing.Sequence[str], k: int) -> typing.Generator[str, None, None]:
     """:py:class:`typing.Generator` : Returns a generator of lexicographically ordered, variable-length substrings ,of size at most ``k`` , of a given string / sequence.
     
@@ -862,17 +897,17 @@ def variable_length_lexicographic_ordering(s: typing.Sequence[str], k: int) -> t
 
 
 def linguistic_sequence_complexity(s: str, A: set, /) -> float:
-    """:py:class:`float` : Returns the linguistic complexity (LC) of a string formed over an alphabet.
+    """:py:class:`float` : Returns the linguistic complexity (LC) of a stringt.
 
     Solution to the Linguistic Complexity of a Genome problem (LING):
 
     https://rosalind.info/problems/ling/
 
-    The linguistic complexity (LC) measure is defined in the ROSALIND problem page:
+    The LC measure is defined on the ROSALIND problem page:
 
         https://rosalind.info/problems/ling/
 
-    but more clearly defined in the following paper (page W630):
+    but a clearer definition is also in the following paper (page W630):
 
         Orlov YL, Potapov VN. Complexity: an internet resource for analysis
         of DNA sequence complexity. Nucleic Acids Res. 2004 Jul 1;32(Web Server
