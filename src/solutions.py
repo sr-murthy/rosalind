@@ -786,7 +786,7 @@ def kmer_composition(s: str | Bio.Seq.Seq, A: str, k: int) -> typing.Generator[i
 
     .. note::
 
-       The function has been implemented to generate, because ``k``-mers
+       The function has been implemented as a generator, because ``k``-mers
        can grow very rapidly depending on the size of the alphabet.
 
     Parameters
@@ -808,7 +808,12 @@ def kmer_composition(s: str | Bio.Seq.Seq, A: str, k: int) -> typing.Generator[i
         ``i`` is the index of the kmer in the natural ordering of all ``k``-mers
         of ``A``.
     """
-    yield from (s.count(kmer) for kmer in lexicographic_kmers(A, k=k))
+    n = len(s)
+
+    def kmer_count(kmer: str, s: str) -> int:
+        return sum(1 for i in range(n - k + 1) if s[i: i + k] == kmer)
+
+    yield from (kmer_count(kmer, s) for kmer in lexicographic_kmers(A, k=k))
 
 
 def variable_length_lexicographic_ordering(s: typing.Sequence[str], k: int) -> typing.Generator[str, None, None]:
@@ -875,8 +880,8 @@ def variable_length_lexicographic_ordering(s: typing.Sequence[str], k: int) -> t
      'AAN',
      'AAA']
     """
-    # A map of characters in the sequence to their (1-indexed array) indices.
-    seq_charmap = dict([(char, idx + 1) for idx, char in enumerate(s)])
+    # Map characters in the sequence to their (1-indexed array) indices.
+    seq_charmap = {char: idx + 1 for idx, char in enumerate(s)}
 
     # A lexicographic scoring function for substrings (given as strings or list
     # of one-letter strings) that uses the sequence character map on the
@@ -885,8 +890,7 @@ def variable_length_lexicographic_ordering(s: typing.Sequence[str], k: int) -> t
     def lex_score(t: str | list) -> str:
         return tuple(seq_charmap[char] for char in t)
 
-    # A dict of all possible substrings of length at most ``k`` mapped to their
-    # lex scores.
+    # Map substrings of length at most ``k`` to their lex scores.
     subseqs = {
         ''.join(p): lex_score(p)
         for p in chain.from_iterable(product(s, repeat=j) for j in range(1, k + 1))

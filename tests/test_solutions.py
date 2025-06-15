@@ -122,7 +122,7 @@ def test_lexicographic_kmers():
 
 def test_kmer_composition():
     assert tuple(kmer_composition('CTTCGAAAG', 'ACGT', 2)) == (
-        1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1
+        2, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1
     )
 
 
