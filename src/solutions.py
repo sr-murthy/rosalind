@@ -135,7 +135,7 @@ RNA_CODON_TABLE = {
 }
 
 
-def basecount(dna_seq: str | Bio.Seq.Seq, /) -> collections.Counter:
+def basecount(s: str | Bio.Seq.Seq, /) -> collections.Counter:
     """:py:class:`collections.Counter` : Returns a dict of DNA bases and their counts in a given DNA sequence.
 
     Solution to the Counting DNA Nucleotides problem (DNA):
@@ -144,7 +144,7 @@ def basecount(dna_seq: str | Bio.Seq.Seq, /) -> collections.Counter:
 
     Parameters
     ----------
-    dna_seq : str, Bio.Seq.Seq
+    s : str, Bio.Seq.Seq
         The input DNA sequence, given as a string or :py:class:`Bio.Seq.Seq`.
 
     Returns
@@ -157,10 +157,10 @@ def basecount(dna_seq: str | Bio.Seq.Seq, /) -> collections.Counter:
     >>> basecount("AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC")
     Counter({'T': 21, 'A': 20, 'G': 17, 'C': 12})
     """
-    return Counter(dna_seq)
+    return Counter(s)
 
 
-def transcribe_dna_to_rna(dna_seq: str | Bio.Seq.Seq, /) -> str:
+def transcribe_dna_to_rna(s: str | Bio.Seq.Seq, /) -> str:
     """:py:class:`str` : Returns an RNA transcription of a DNA string.
 
     Solution to the Transcribing DNA into RNA problem (RNA):
@@ -169,7 +169,7 @@ def transcribe_dna_to_rna(dna_seq: str | Bio.Seq.Seq, /) -> str:
 
     Parameters
     ----------
-    dna_seq : str
+    s : str
         The input DNA sequence, given as a string or :py:class:`Bio.Seq.Seq`.
 
     Returns
@@ -181,10 +181,10 @@ def transcribe_dna_to_rna(dna_seq: str | Bio.Seq.Seq, /) -> str:
     >>> transcribe_dna_to_rna("GATGGAACTTGACTACGTAAATT")
     'GAUGGAACUUGACUACGUAAAUU'
     """
-    return str(dna_seq).translate(str.maketrans('T', 'U'))
+    return str(s).translate(str.maketrans('T', 'U'))
 
 
-def reverse_complement(dna_seq: str | Bio.Seq.Seq, /) -> str:
+def reverse_complement(s: str | Bio.Seq.Seq, /) -> str:
     """:py:class:`str` : Returns the reverse complement of a DNA string, which is the reversed string with the bases complemented.
 
     Solution to the Complementing a Strand of DNA problem (REVC):
@@ -193,7 +193,7 @@ def reverse_complement(dna_seq: str | Bio.Seq.Seq, /) -> str:
 
     Parameters
     ----------
-    dna_seq : str
+    s : str
         The input DNA sequence, given as a string or :py:class:`Bio.Seq.Seq`.
 
     Returns
@@ -211,10 +211,10 @@ def reverse_complement(dna_seq: str | Bio.Seq.Seq, /) -> str:
     >>> reverse_complement("AAAACCCGGT")
     'ACCGGGTTTT'
     """
-    return str(dna_seq)[::-1].translate(str.maketrans("ATCG", "TAGC"))
+    return str(s)[::-1].translate(str.maketrans("ATCG", "TAGC"))
 
 
-def fibo_rabbits(n: int, k: int, /) -> int:
+def fibo_rabbits(n: int, k: int) -> int:
     """:py:class:`int` : The number of rabbit pairs alive after ``n`` months, starting with 1 pair and with each reproductive-age pair producing ``k`` pairs.
 
     Solution to the Rabbits and Recurrence Relations problem (FIB):
@@ -272,7 +272,7 @@ def fibo_rabbits(n: int, k: int, /) -> int:
             return x
 
 
-def gc_content(dna_seq: str | Bio.Seq.Seq, /) -> float:
+def gc_content(s: str | Bio.Seq.Seq, /) -> float:
     """:py:class:`float` : The proportion of bases in the DNA sequence which are either ``'C'`` or ``'G'``.
 
     Utility function for the max. GC content problem (GC):
@@ -283,7 +283,7 @@ def gc_content(dna_seq: str | Bio.Seq.Seq, /) -> float:
 
     Parameters
     ----------
-    dna_seq : str, Bio.Seq.Seq
+    s : str, Bio.Seq.Seq
         The DNA sequence.
 
     Returns
@@ -297,7 +297,7 @@ def gc_content(dna_seq: str | Bio.Seq.Seq, /) -> float:
     >>> gc_content("CCTGCGGAAGATCGGCACTAGAATAGCCAGAACCGTTTCTCTGAGGCTTCCGGCCTTCCCTCCCACTAATAATTCTGAGG")
     0.3125
     """
-    return sum(1 for c in dna_seq if c in ['C' or 'G']) / len(dna_seq)
+    return sum(1 for c in s if c in ['C' or 'G']) / len(s)
 
 
 def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Iterable[Bio.SeqRecord.SeqRecord], /) -> tuple[str, float]:
@@ -323,7 +323,7 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
     Examples
     --------
     >>> from Bio import SeqIO
-    >>> max_gc_content(SeqIO.parse("/path/to/rosalind_gc.txt", "fasta"))
+    >>> max_gc_content(SeqIO.parse("./rosalind_gc.txt", "fasta"))
     ('Rosalind_6127', 26.282722513089006)
     """
     sorted_gc_contents = sorted(
@@ -337,7 +337,7 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
     return sorted_gc_contents[-1]
 
 
-def point_mutations(dna_seq1: str | Bio.Seq.Seq, dna_seq2: str | Bio.Seq.Seq, /) -> int:
+def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
     """:py:class:`int` : Returns a (non-negative) integer count of the mutations (or differences) in two DNA sequences of equal length.
 
     Solution to the Counting Point Mutations problem (HAMM):
@@ -349,10 +349,10 @@ def point_mutations(dna_seq1: str | Bio.Seq.Seq, dna_seq2: str | Bio.Seq.Seq, /)
 
     Parameters
     ----------
-    dna_seq1 : str, Bio.Seq.Seq
+    s : str, Bio.Seq.Seq
         The first DNA sequence, given as a string or :py:class:`Bio.Seq.Seq`.
 
-    dna_seq2 : str, Bio.Seq.Seq
+    t : str, Bio.Seq.Seq
         The second DNA sequence, given as a string or :py:class:`Bio.Seq.Seq`.
 
     Returns
@@ -366,10 +366,10 @@ def point_mutations(dna_seq1: str | Bio.Seq.Seq, dna_seq2: str | Bio.Seq.Seq, /)
     >>> point_mutations("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT")
     7
     """
-    return sum(1 for i in range(len(dna_seq1)) if dna_seq1[i] != dna_seq2[i])
+    return sum(1 for i in range(len(s)) if s[i] != t[i])
 
 
-def translate_rna_to_protein(rna_seq: str | Bio.Seq.Seq, /) -> str:
+def translate_rna_to_protein(s: str | Bio.Seq.Seq, /) -> str:
     """:py:class:`str` : Returns a protein sequence encoded by an RNA seq.
 
     Solution to the Translating RNA into Protein problem (PROT):
@@ -383,7 +383,7 @@ def translate_rna_to_protein(rna_seq: str | Bio.Seq.Seq, /) -> str:
 
     Parameters
     ----------
-    rna_seq : str, Bio.Seq.Seq
+    s : str, Bio.Seq.Seq
         The RNA sequence, given as a string or :py:class:`Bio.Seq.Seq`.
 
     Returns
@@ -399,16 +399,16 @@ def translate_rna_to_protein(rna_seq: str | Bio.Seq.Seq, /) -> str:
     encoding = ''
     i = 0
 
-    while i < len(rna_seq) - 2:
-        codon = rna_seq[i: i + 3]
+    while i < len(s) - 2:
+        codon = s[i: i + 3]
         encoding += RNA_CODON_TABLE[codon]
         i += 3
 
     return encoding
 
 
-def count_dna_motif(dna_seq: str | Bio.Seq.Seq, dna_subseq: str | Bio.Seq.Seq, /) -> tuple[int]:
-    """:py:class:`tuple` : A tuple of all starting indices of occurrences of a DNA subseqence in the given DNA sequence.
+def count_dna_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int]:
+    """:py:class:`tuple` : A tuple of all starting indices of occurrences of a DNA subsequence in the given DNA sequence.
 
     Solution to the Finding a Motif in DNA problem (SUBS);
 
@@ -421,10 +421,10 @@ def count_dna_motif(dna_seq: str | Bio.Seq.Seq, dna_subseq: str | Bio.Seq.Seq, /
 
     Parameters
     ----------
-    dna_seq : str, Bio.Seq.Seq
+    s : str, Bio.Seq.Seq
         The DNA sequence, given as a string or :py:class:`Bio.Seq.Seq`.
 
-    dna_subseq : str, Bio.Seq.Seq
+    t : str, Bio.Seq.Seq
         The DNA subsequence, given as a string or :py:class:`Bio.Seq.Seq`.
 
     Returns
@@ -438,16 +438,16 @@ def count_dna_motif(dna_seq: str | Bio.Seq.Seq, dna_subseq: str | Bio.Seq.Seq, /
     >>> count_dna_motif("GATATATGCATATACTT", "ATAT")
     (2, 4, 10)
     """
-    n = len(dna_seq)
-    m = len(dna_subseq)
+    n = len(s)
+    m = len(t)
 
     return tuple([
          i + 1 for i in range(n - m + 1)
-         if dna_seq[i: i + m] == dna_subseq
+         if s[i: i + m] == t
     ])
 
 
-def protein_mass(protein_seq: str | Bio.Seq.Seq, /) -> float:
+def protein_mass(s: str | Bio.Seq.Seq, /) -> float:
     """:py:class:`float` : Calculates the mass of a protein sequence using the monoisotopic mass table.
 
     Solution to the Calculating Protein Mass problem (PRTM):
@@ -456,7 +456,7 @@ def protein_mass(protein_seq: str | Bio.Seq.Seq, /) -> float:
 
     Parameters
     ----------
-    protein_seq : str, Bio.Seq.Seq
+    s : str, Bio.Seq.Seq
         The protein sequence, given as a string or :py:class:`Bio.Seq.Seq`.
 
     Returns
@@ -469,10 +469,10 @@ def protein_mass(protein_seq: str | Bio.Seq.Seq, /) -> float:
     >>> protein_mass("SKADYEK")
     821.39192
     """
-    return sum(MONOISOTOPIC_MASS_TABLE[c] for c in protein_seq)
+    return sum(MONOISOTOPIC_MASS_TABLE[c] for c in s)
 
 
-def longest_common_substring(strings: typing.Iterable[str | Bio.Seq.Seq], /) -> str:
+def longest_common_substring(strs: typing.Iterable[str | Bio.Seq.Seq], /) -> str:
     """:py:class:`str` : Returns a longest common substring among an iterable of strings.
 
     Solution to the Finding a Shared Motif problem (LCSM):
@@ -481,7 +481,7 @@ def longest_common_substring(strings: typing.Iterable[str | Bio.Seq.Seq], /) -> 
 
     Parameters
     ----------
-    dna_seqs : typing.Iterable
+    str : typing.Iterable
         An iterable of strings, which may be given as plain strings or
         Biopython genetic sequences (:py:class:`Bio.Seq.Seq`).
 
@@ -499,7 +499,7 @@ def longest_common_substring(strings: typing.Iterable[str | Bio.Seq.Seq], /) -> 
     """
     # Some key initial steps, starting with a sort of the incoming iterable
     # by length, in order to get a maximum length string.
-    sorted_strs = sorted(strings, key=lambda s: len(s))
+    sorted_strs = sorted(strs, key=lambda s: len(s))
     max_len_str = sorted_strs[-1]
     max_str_len = len(max_len_str)
     str_len = len(max_len_str)
@@ -537,6 +537,10 @@ def sequence_distance_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> lis
     Solution to the Creating a Distance Matrix problem (PDST):
 
     https://rosalind.info/problems/pdst/
+
+    As the distance between a sequence and itself is zero, and the distance
+    between two sequences is independent of order, the matrix will be symmetric
+    with zeros on the diagonal.
 
     Parameters
     ----------
@@ -586,8 +590,9 @@ def sequence_distance_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> lis
                 j += 1
                 continue
             # otherwise it must be that ``i < j``, in which case set
-            # the Hamming distance of the current sequence pair, and set
-            # the transpose value to the same, avoiding another calculation
+            # the Hamming distance of the current sequence pair ``(i, j)``,
+            # and use the the same value for the transposed entry ``(j, i)``,
+            # avoiding another calculation.
             else:
                 mat[i][j] = point_mutations(seqs[i], seqs[j]) / m
                 mat[j][i] = mat[i][j]
@@ -597,7 +602,7 @@ def sequence_distance_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> lis
     return mat
 
 
-def profile_matrix(dna_seqs: typing.Iterable[str | Bio.Seq.Seq]) -> tuple:
+def profile_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq]) -> tuple:
     """:py:class:`tuple` : Returns the consensus string and profile matrix for a collection of DNA sequences/strings.
 
     Solution to the Consensus and Profile problem (CONS):
@@ -606,7 +611,7 @@ def profile_matrix(dna_seqs: typing.Iterable[str | Bio.Seq.Seq]) -> tuple:
 
     Parameters
     ----------
-    dna_seqs : typing.Iterable
+    seqs : typing.Iterable
         A collection of DNA sequences (or strings).
 
     Returns
@@ -627,24 +632,30 @@ def profile_matrix(dna_seqs: typing.Iterable[str | Bio.Seq.Seq]) -> tuple:
     G: 1 1 6 3 0 1 0 0
     T: 1 5 0 0 0 1 1 6
     """
-    n = len(dna_seqs[0])
+    # Take any sequence, but we can use the initial one to set
+    # the (column) width of the matrix.
+    n = len(seqs[0])
 
+    # The initial ``4 x n`` profile matrix of zeros
     profile_matrix = [list([0] * n) for i in range(4)]
 
+    # A list of blanks to store the characters of the consensus string
     consensus_str = list([''] * n)
 
+    # The bases string
     base_str = 'ACGT'
 
+    # The main loop
     for j in range(n):
         for i, b in enumerate(base_str):
-            profile_matrix[i][j] = sum(1 for s in dna_seqs if s[j] == b)
+            profile_matrix[i][j] = sum(1 for s in seqs if s[j] == b)
             if profile_matrix[i][j] == max(profile_matrix[x][j] for x in range(4)):
                 consensus_str[j] = b
 
     return ''.join(consensus_str), profile_matrix
 
 
-def signed_permutations(n: int, /) -> typing.Generator[list[int], None, None]:
+def signed_permutations(n: int, /) -> typing.Generator[tuple[int], None, None]:
     """:py:class:`typing.Generator` : Returns a generator of signed permutations of length ``n`` of the integer range ``1..n``.
 
     Solution to the Enumerating Oriented Gene Orderings problem (SIGN):
@@ -658,8 +669,8 @@ def signed_permutations(n: int, /) -> typing.Generator[list[int], None, None]:
 
     Yields
     ------
-    list
-        A signed permutation as a list of ints.
+    tuple
+        Each generated value is a tuple of ints.
 
     Examples
     --------
@@ -719,7 +730,7 @@ def signed_permutations(n: int, /) -> typing.Generator[list[int], None, None]:
     )
 
 
-def lexicographic_kmers(seq: typing.Sequence[str], k: int) -> typing.Generator[str, None, None]:
+def lexicographic_kmers(s: typing.Sequence[str], k: int) -> typing.Generator[str, None, None]:
     """:py:class:`typing.Generator` : Returns a generator of ``k``-length substrings formed from subsequences of a given sequence of characters.
     
     Solution to the Enumerating k-mers Lexicographically problem (LEXF):
@@ -728,7 +739,7 @@ def lexicographic_kmers(seq: typing.Sequence[str], k: int) -> typing.Generator[s
 
     Parameters
     ----------
-    seq : typing.Sequence
+    s : typing.Sequence
         A sequence of characters, which can be any single letter Unicode
         strings. The given ordering is used in building lexicographically
         ordered substrings.
@@ -762,14 +773,11 @@ def lexicographic_kmers(seq: typing.Sequence[str], k: int) -> typing.Generator[s
      'TG',
      'TT']
     """
-    yield from map(
-        lambda s: ''.join(s),
-        product(seq, repeat=k)
-    )
+    yield from map(lambda s: ''.join(s), product(s, repeat=k))
 
 
-def variable_length_lexicographic_ordering(seq: typing.Sequence[str], k: int) -> typing.Generator[str, None, None]:
-    """:py:class:`typing.Generator` : Returns a generator of lexicographically ordered, variable-length substrings of size at most ``k``, formed from subsequences of a given sequence of characters.
+def variable_length_lexicographic_ordering(s: typing.Sequence[str], k: int) -> typing.Generator[str, None, None]:
+    """:py:class:`typing.Generator` : Returns a generator of lexicographically ordered, variable-length substrings ,of size at most ``k`` , of a given string / sequence.
     
     Solution to the Ordering Strings of Varying Length Lexicographically problem (LEXV):
 
@@ -777,7 +785,7 @@ def variable_length_lexicographic_ordering(seq: typing.Sequence[str], k: int) ->
 
     Parameters
     ----------
-    seq : typing.Sequence
+    s : typing.Sequence
         A sequence of characters, which can be any single letter Unicode
         strings. The given ordering is used in building lexicographically
         ordered substrings.
@@ -832,31 +840,28 @@ def variable_length_lexicographic_ordering(seq: typing.Sequence[str], k: int) ->
      'AAN',
      'AAA']
     """
-    # A map of characters in the sequence to their (1-indexed) indices.
-    seq_charmap = dict([(char, idx + 1) for idx, char in enumerate(seq)])
+    # A map of characters in the sequence to their (1-indexed array) indices.
+    seq_charmap = dict([(char, idx + 1) for idx, char in enumerate(s)])
 
     # A lexicographic scoring function for substrings (given as strings or list
     # of one-letter strings) that uses the sequence character map on the
     # substring to build a tuple of index positions of its characters. The
     # resulting tuples can be compared and ordered lexicographically.
-    def lex_score(subseq: str | list) -> str:
-        return tuple(seq_charmap[char] for char in subseq)
+    def lex_score(t: str | list) -> str:
+        return tuple(seq_charmap[char] for char in t)
 
     # A dict of all possible substrings of length at most ``k`` mapped to their
     # lex scores.
     subseqs = {
         ''.join(p): lex_score(p)
-        for p in chain.from_iterable(product(seq, repeat=j) for j in range(1, k + 1))
+        for p in chain.from_iterable(product(s, repeat=j) for j in range(1, k + 1))
     }
 
     # Now sort them by the lexicographic scoring function, and generate them.
-    yield from sorted(
-        subseqs,
-        key=lambda subseq: lex_score(subseq)
-    )
+    yield from sorted(subseqs, key=lambda t: lex_score(t))
 
 
-def linguistic_sequence_complexity(string: str, alphabet: set, /) -> float:
+def linguistic_sequence_complexity(s: str, A: set, /) -> float:
     """:py:class:`float` : Returns the linguistic complexity (LC) of a string formed over an alphabet.
 
     Solution to the Linguistic Complexity of a Genome problem (LING):
@@ -879,10 +884,10 @@ def linguistic_sequence_complexity(string: str, alphabet: set, /) -> float:
 
     Parameters
     ----------
-    string : str
+    s : str
         The input string.
 
-    alphabet : set
+    A : set
         The underlying alphabet of the string.
 
     Returns
@@ -895,13 +900,13 @@ def linguistic_sequence_complexity(string: str, alphabet: set, /) -> float:
     >>> linguistic_sequence_complexity("ATTTGGATT")
     0.875
     """
-    n = len(string)
-    m = len(alphabet)
+    n = len(s)
+    m = len(A)
 
     # Calculate the number of observed substrings as the sum of the number of
     # ``k``-length substrings found in the string, for ``k`` in ``1..n``.
-    num_observed_substrings = len(set(string)) + sum(
-        len(set([string[j: j + k] for j in range(n - k + 1)]))
+    num_observed_substrings = len(set(s)) + sum(
+        len(set([s[j: j + k] for j in range(n - k + 1)]))
         for k in range(2, n + 1)
     )
 
