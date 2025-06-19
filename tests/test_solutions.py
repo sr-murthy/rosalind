@@ -56,22 +56,47 @@ def test_point_mutations():
     assert point_mutations("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT") == 7
 
 
+def test_transition_transversion_ratio():
+    assert transition_transversion_ratio("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT") == 0.16666666666666666
+    assert transition_transversion_ratio(
+        "GCAACGCACAACGAAAACCCTTAGGGACTGGATTATTTCGTGATCGTTGTAGTTATTGGAAGTACGGGCATCAACCCAGTT",
+        "TTATCTGACAAAGAAAGCCGTCAACGGCTGGATAATTTCGCGATCGTGCTGGTTACTGGCGGTACGAGTGTTCCTTTGGGT"
+    ) == 1.2142857142857142
+
+
 def test_translate_rna_into_protein():
     assert translate_rna_to_protein("AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA") == 'MAMAPRTEINSTRING'
 
 
-def count_dna_motif():
+def test_splice_rna():
+    assert splice_rna(
+        "ATGGTCTACATAGCTGACAAACAGCACGTAGCAATCGGTCGAATCTCGAGAGGCATATGGTCACATGATCGGTCGAGCGTGTTTCAAAGTTTGCGCCTAG",
+        ["ATCGGTCGAA", "ATCGGTCGAGCGTGT"]
+    ) == "MVYIADKQHVASREAYGHMFKVCA"
+
+
+def test_count_dna_motif():
     assert count_dna_motif("GATATATGCATATACTT", "TCAT") == ()
     assert count_dna_motif("GATATATGCATATACTT", "ATAT") == (2, 4, 10)
+    assert count_dna_motif("", "AB") == ()
+    assert count_dna_motif("ABC", "") == ()
+
+
+def test_find_spliced_motif():
+    assert find_spliced_motif("ACGTACGTGACG", "GTA") == (3, 4, 5)
+    assert find_spliced_motif("ACGTACGTGACG", "AGTCC") == (1, 3, 4, 6, 11)
+    assert find_spliced_motif("ACGTACGTGACG", "GTX") == ()
+    assert find_spliced_motif("", "AB") == ()
+    assert find_spliced_motif("ABC", "") == ()
 
 
 def test_protein_mass():
     assert protein_mass("SKADYEK") == 821.39192
 
 
-def test_longest_common_substring():
-    assert longest_common_substring(["ACCC", "GGTT"]) == ""
-    assert longest_common_substring(["GATTACA", "TAGACCA", "ATACA"]) == "TA"
+def test_longest_common_shared_motif():
+    assert longest_common_shared_motif(["ACCC", "GGTT"]) == ""
+    assert longest_common_shared_motif(["GATTACA", "TAGACCA", "ATACA"]) == "TA"
 
 
 def test_sequence_distance_matrix():
@@ -93,8 +118,8 @@ def test_profile_matrix():
     )
 
 
-def test_signed_permutations():
-    assert list(signed_permutations(2)) == [
+def test_oriented_gene_orderings():
+    assert list(oriented_gene_orderings(2)) == [
         (1, 2), (2, 1), (1, -2), (-2, 1), (-1, 2), (2, -1), (-1, -2), (-2, -1)
     ]
 
@@ -145,3 +170,11 @@ def test_variable_length_lexicographic_ordering():
 
 def test_linguistic_sequence_complexity():
     assert linguistic_sequence_complexity("ATTTGGATT", {"A", "C", "G", "T"}) == 0.875
+
+
+def test_random_dna_strings():
+    assert random_dna_strings(
+        "ACGATACAA",
+        [0.129, 0.287, 0.423, 0.476, 0.641, 0.742, 0.783],
+        roundto=3
+    ) == (-5.737, -5.217, -5.263, -5.360, -5.958, -6.628, -7.009,)

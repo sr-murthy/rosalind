@@ -1,22 +1,25 @@
 __all__ = [
     'basecount',
     'count_dna_motif',
+    'oriented_gene_orderings',
     'fibo_rabbits',
-    'gc_content',
+    'find_spliced_motif',
     'kmer_composition',
     'lexicographic_kmers',
     'linguistic_sequence_complexity',
-    'longest_common_substring',
+    'longest_common_shared_motif',
     'max_gc_content',
     'MONOISOTOPIC_MASS_TABLE',
     'point_mutations',
     'profile_matrix',
     'protein_mass',
+    'random_dna_strings',
     'reverse_complement',
     'RNA_CODON_TABLE',
     'sequence_distance_matrix',
-    'signed_permutations',
+    'splice_rna',
     'transcribe_dna_to_rna',
+    'transition_transversion_ratio',
     'translate_rna_to_protein',
     'variable_length_lexicographic_ordering',
 ]
@@ -26,6 +29,8 @@ __all__ = [
 
 # -- Standard libraries --
 import collections
+import math
+import re
 import typing
 
 from collections import Counter
@@ -37,6 +42,16 @@ import Bio
 from Bio import SeqIO
 
 # -- Internal libraries --
+from utils import (
+    find_subsequence,
+    find_substring,
+    hamming_difference,
+    longest_common_substring,
+    signed_permutations,
+    word_grams,
+    word_k_grams,
+)
+
 
 #: From ROSALIND (protein mass problem) see the page below:
 #:
@@ -259,11 +274,10 @@ def fibo_rabbits(n: int, k: int) -> int:
     # An inner Fibo generator depending on ``k`` only, that can
     # generate infinitely.
     def fibo_inf(k: int) -> typing.Generator[int, None, None]:
-        yield 0
-        yield 1
+        a, b = 0, 1
+        yield a
+        yield b
 
-        a = 0
-        b = 1
         while True:
             a, b = b, k * a + b
             yield b
@@ -271,34 +285,6 @@ def fibo_rabbits(n: int, k: int) -> int:
     for i, x in enumerate(fibo_inf(k)):
         if i == n:
             return x
-
-
-def gc_content(s: str | Bio.Seq.Seq, /) -> float:
-    """:py:class:`float` : The proportion of bases in the DNA sequence which are either ``'C'`` or ``'G'``.
-
-    Utility function for the max. GC content problem (GC):
-
-    .. note::
-
-       The returned value is a proportion (or ratio), not a percentage.
-
-    Parameters
-    ----------
-    s : str, Bio.Seq.Seq
-        The DNA sequence.
-
-    Returns
-    -------
-    float
-        The proportion of bases in the DNA sequence which are either ``'C'``
-        or ``'G'``.
-
-    Examples
-    --------
-    >>> gc_content("CCTGCGGAAGATCGGCACTAGAATAGCCAGAACCGTTTCTCTGAGGCTTCCGGCCTTCCCTCCCACTAATAATTCTGAGG")
-    0.3125
-    """
-    return sum(1 for c in s if c in ['C' or 'G']) / len(s)
 
 
 def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Iterable[Bio.SeqRecord.SeqRecord], /) -> tuple[str, float]:
@@ -327,6 +313,9 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
     >>> max_gc_content(SeqIO.parse("./rosalind_gc.txt", "fasta"))
     ('Rosalind_6127', 26.282722513089006)
     """
+    def gc_content(s: str | Bio.Seq.Seq, /) -> float:
+        return sum(1 for b in s if b in ['C' or 'G']) / len(s)
+
     sorted_gc_contents = sorted(
         {
             record.id: gc_content(record.seq) * 100
@@ -367,7 +356,49 @@ def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
     >>> point_mutations("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT")
     7
     """
-    return sum(1 for i in range(len(s)) if s[i] != t[i])
+    return sum(1 for d in hamming_difference(s, t))
+
+
+def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> float:
+    """:py:class:`float` : The ratio of transitions to transversions in two given sequences.
+
+    Solution to the Transitions and Traversions problem (TRAN):
+
+    https://rosalind.info/problems/tran/
+
+    In two equal-length sequences transitions and transversions are defined as
+    follows:
+
+        transition:  A <-> G, C <-> T
+        tranversion: A <-> C, A <-> T, G <-> T, G <-> C
+
+    Parameters
+    ----------
+    s : str, Bio.Seq.Seq
+        The first DNA sequence, given as a string or :py:class:`Bio.Seq.Seq`.
+
+    t : str, Bio.Seq.Seq
+        The second DNA sequence, given as a string or :py:class:`Bio.Seq.Seq`.
+
+    Returns
+    -------
+    float
+        The ratio of transitions to transversions between the two strings.
+
+    Examples
+    --------
+    >>> transition_transversion_ratio("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT")
+    """
+    transitions = 0
+    transversions = 0
+
+    for _, d in hamming_difference(s, t):
+        if d in [('A', 'G'), ('G', 'A'), ('C', 'T'), ('T', 'C')]:
+            transitions += 1
+        else:
+            transversions += 1
+
+    return transitions / transversions
 
 
 def translate_rna_to_protein(s: str | Bio.Seq.Seq, /) -> str:
@@ -408,6 +439,45 @@ def translate_rna_to_protein(s: str | Bio.Seq.Seq, /) -> str:
     return encoding
 
 
+def splice_rna(s: str | Bio.Seq.Seq, introns: typing.Iterable[str | Bio.Seq.Seq], /) -> str:
+    """:py:class:`str` : Solution to the RNA Splicing problem.
+
+    Solution to the RNA Splicing problem (SPLC):
+
+    https://rosalind.info/problems/splc/
+
+    Parameters
+    ----------
+    s : str
+        The input DNA string/sequence.
+
+    introns : typing.Iterable
+        An iterable of segments of the input string which represent entities
+        called introns, which must be removed.
+
+    Returns
+    -------
+    str
+        The translated protein string.
+
+    Examples
+    --------
+    >>> s = "ATGGTCTACATAGCTGACAAACAGCACGTAGCAATCGGTCGAATCTCGAGAGGCATATGGTCACATGATCGGTCGAGCGTGTTTCAAAGTTTGCGCCTAG"
+    >>> splice_rna(s, ["ATCGGTCGAA", "ATCGGTCGAGCGTGT"])
+    'MVYIADKQHVASREAYGHMFKVCA'
+    """
+    # A local initial copy of ``s``
+    s1 = s
+
+    # Remove the introns - note that using ``re.sub`` won't work if the inputs are
+    # ``Bio.Seq.Seq`` objects, hence the use of ``str.replace``.
+    for i in introns:
+        s1 = s1.replace(i, '')
+
+    # Now perform the DNA -> RNA -> Protein transformation and return
+    return translate_rna_to_protein(transcribe_dna_to_rna(s1))
+
+
 def count_dna_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int]:
     """:py:class:`tuple` : A tuple of all starting indices of occurrences of a DNA subsequence in the given DNA sequence.
 
@@ -439,13 +509,49 @@ def count_dna_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int]
     >>> count_dna_motif("GATATATGCATATACTT", "ATAT")
     (2, 4, 10)
     """
-    n = len(s)
-    m = len(t)
+    b = find_substring(s, t)
 
-    return tuple([
-         i + 1 for i in range(n - m + 1)
-         if s[i: i + m] == t
-    ])
+    return tuple(map(lambda i: i + 1, b)) if b else ()
+
+
+def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int] | None:
+    """:py:class:`tuple` or None : Returns a tuple of 1-indexed array indices of a sequence ``t`` if it is a subsequence of ``s``, or null if not.
+
+    Solution to the Finding a Spliced Motif problem (SSEQ):
+
+    https://rosalind.info/problems/sseq/
+
+    .. note::
+
+       The indices are given in terms of 1-indexed arrays - just subtract 1
+       from them all to convert them to 0-indexed array indices. Also, the
+       indices will not necessarily be unique, as there may be multiple
+       occurrences  - the earliest occurring indices will be returned,
+       in case of a subsequence match.
+
+    Parameters
+    ----------
+    s : str, Bio.Seq.Seq
+        The DNA sequence in which to search for another sequence.
+
+    t : str, Bio.Seq.Seq
+        The second DNA sequence to search for in the first sequence.
+
+    Returns
+    -------
+    tuple
+        The 1-indexed ``s``-indices of the bases of ``t`` if it occurs as a
+        subsequence of ``s``, or null if not. Not necessarily unique - the
+        earliest occurring indices are returned in case of a subsequence match.
+
+    Examples
+    --------
+    >>> find_spliced_motif("ACGTACGTGACG", "GTA")
+    (3, 4, 5)
+    """
+    ixs = find_subsequence(s, t)
+
+    return tuple(map(lambda i: i + 1, ixs)) if ixs else ()
 
 
 def protein_mass(s: str | Bio.Seq.Seq, /) -> float:
@@ -473,7 +579,7 @@ def protein_mass(s: str | Bio.Seq.Seq, /) -> float:
     return sum(MONOISOTOPIC_MASS_TABLE[c] for c in s)
 
 
-def longest_common_substring(strs: typing.Iterable[str | Bio.Seq.Seq], /) -> str:
+def longest_common_shared_motif(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> str:
     """:py:class:`str` : Returns a longest common substring among an iterable of strings.
 
     Solution to the Finding a Shared Motif problem (LCSM):
@@ -482,7 +588,7 @@ def longest_common_substring(strs: typing.Iterable[str | Bio.Seq.Seq], /) -> str
 
     Parameters
     ----------
-    str : typing.Iterable
+    seqs : typing.Iterable
         An iterable of strings, which may be given as plain strings or
         Biopython genetic sequences (:py:class:`Bio.Seq.Seq`).
 
@@ -495,41 +601,10 @@ def longest_common_substring(strs: typing.Iterable[str | Bio.Seq.Seq], /) -> str
     Examples
     --------
     >>> seqs = ["GATTACA", "TAGACCA", "ATACA"]
-    >>> longest_common_substring(seqs)
+    >>> longest_common_shared_motif(seqs)
     'TA'
     """
-    # Some key initial steps, starting with a sort of the incoming iterable
-    # by length, in order to get a maximum length string.
-    sorted_strs = sorted(strs, key=lambda s: len(s))
-    max_len_str = sorted_strs[-1]
-    max_str_len = len(max_len_str)
-    str_len = len(max_len_str)
-
-    # The outermost ``while`` loop on substring length, which descends from the
-    # length of a largest substring (not necessarily unique) to minimal
-    # substrings (of length 1).
-    while str_len > 0:
-        i = 0
-        # The innermost ``while`` loop on substrings of length ``substr_len``
-        while i < max_str_len - str_len + 1:
-            cur_substr = max_len_str[i: i + str_len]
-            # If the current substring isn't common then skip to the next
-            # substring
-            if any(cur_substr not in str for str in sorted_strs):
-                i += 1
-                continue
-
-            # The current substring must be the common largest, as it hasn't
-            # failed the checks, so return it.
-            return cur_substr
-
-        # Otherwise decrement the substring length, and start the next
-        # iteration of the outer loop
-        str_len -= 1
-
-    # At this point the LCS must be an empty string, as there was no non-empty
-    # substring returned in the inner loop, so just return it.
-    return ''
+    return longest_common_substring(seqs)
 
 
 def sequence_distance_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> list[list[float]]:
@@ -656,8 +731,8 @@ def profile_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq]) -> tuple:
     return ''.join(consensus_str), profile_matrix
 
 
-def signed_permutations(n: int, /) -> typing.Generator[tuple[int], None, None]:
-    """:py:class:`typing.Generator` : Returns a generator of signed permutations of length ``n`` of the integer range ``1..n``.
+def oriented_gene_orderings(n: int, /) -> typing.Generator[tuple[int], None, None]:
+    """:py:class:`typing.Generator` : Solution to the SIGN problem.
 
     Solution to the Enumerating Oriented Gene Orderings problem (SIGN):
 
@@ -675,7 +750,7 @@ def signed_permutations(n: int, /) -> typing.Generator[tuple[int], None, None]:
 
     Examples
     --------
-    >>> list(signed_permutations(3))
+    >>> list(oriented_gene_orderings(3))
     [(1, 2, 3),
      (1, 3, 2),
      (2, 1, 3),
@@ -725,13 +800,10 @@ def signed_permutations(n: int, /) -> typing.Generator[tuple[int], None, None]:
      (-3, -1, -2),
      (-3, -2, -1)]
     """
-    yield from chain.from_iterable(
-        permutations(p)
-        for p in product(*([k, -k] for k in range(1, n + 1)))
-    )
+    yield from signed_permutations(n)
 
 
-def lexicographic_kmers(s: typing.Sequence[str], k: int) -> typing.Generator[str, None, None]:
+def lexicographic_kmers(s: str, k: int) -> typing.Generator[str, None, None]:
     """:py:class:`typing.Generator` : Returns a generator of ``k``-length substrings formed from subsequences of a given sequence of characters.
     
     Solution to the Enumerating k-mers Lexicographically problem (LEXF):
@@ -774,7 +846,7 @@ def lexicographic_kmers(s: typing.Sequence[str], k: int) -> typing.Generator[str
      'TG',
      'TT']
     """
-    yield from map(lambda s: ''.join(s), product(s, repeat=k))
+    yield from word_k_grams(s, k)
 
 
 def kmer_composition(s: str | Bio.Seq.Seq, A: str, k: int) -> typing.Generator[int, None, None]:
@@ -787,7 +859,8 @@ def kmer_composition(s: str | Bio.Seq.Seq, A: str, k: int) -> typing.Generator[i
     .. note::
 
        The function has been implemented as a generator, because ``k``-mers
-       can grow very rapidly depending on the size of the alphabet.
+       can grow very rapidly depending on the size of the alphabet and the
+       value of ``k``.
 
     Parameters
     ----------
@@ -804,19 +877,19 @@ def kmer_composition(s: str | Bio.Seq.Seq, A: str, k: int) -> typing.Generator[i
     -------
     int
         A generator of ``k``-mer frequencies in the given string/sequence, where
-        ``i``-value is the frequency of the ``i``-th kmer of ``A`` in ``s``, and
-        ``i`` is the index of the kmer in the natural ordering of all ``k``-mers
-        of ``A``.
+        the ``i``th value is the frequency of the ``i``-th kmer of ``A`` in
+        ``s``,and ``i`` is the index of the kmer in the natural ordering of all
+        ``k``-mers of ``A``.
+
+    Examples
+    --------
+    >>> tuple(kmer_composition('AAAACCCGGT', 'ACGT', k=2))
+    (3, 1, 0, 0, 0, 2, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0)
     """
-    n = len(s)
-
-    def kmer_count(kmer: str, s: str) -> int:
-        return sum(1 for i in range(n - k + 1) if s[i: i + k] == kmer)
-
-    yield from (kmer_count(kmer, s) for kmer in lexicographic_kmers(A, k=k))
+    yield from (len(find_substring(s, kmer)) for kmer in word_k_grams(A, k=k))
 
 
-def variable_length_lexicographic_ordering(s: typing.Sequence[str], k: int) -> typing.Generator[str, None, None]:
+def variable_length_lexicographic_ordering(s: str, k: int) -> typing.Generator[str, None, None]:
     """:py:class:`typing.Generator` : Returns a generator of lexicographically ordered, variable-length substrings ,of size at most ``k`` , of a given string / sequence.
     
     Solution to the Ordering Strings of Varying Length Lexicographically problem (LEXV):
@@ -880,28 +953,11 @@ def variable_length_lexicographic_ordering(s: typing.Sequence[str], k: int) -> t
      'AAN',
      'AAA']
     """
-    # Map characters in the sequence to their (1-indexed array) indices.
-    seq_charmap = {char: idx + 1 for idx, char in enumerate(s)}
-
-    # A lexicographic scoring function for substrings (given as strings or list
-    # of one-letter strings) that uses the sequence character map on the
-    # substring to build a tuple of index positions of its characters. The
-    # resulting tuples can be compared and ordered lexicographically.
-    def lex_score(t: str | list) -> str:
-        return tuple(seq_charmap[char] for char in t)
-
-    # Map substrings of length at most ``k`` to their lex scores.
-    subseqs = {
-        ''.join(p): lex_score(p)
-        for p in chain.from_iterable(product(s, repeat=j) for j in range(1, k + 1))
-    }
-
-    # Now sort them by their lex scores, and generate them.
-    yield from sorted(subseqs, key=lambda s: subseqs[s])
+    yield from word_grams(s, k)
 
 
 def linguistic_sequence_complexity(s: str, A: set, /) -> float:
-    """:py:class:`float` : Returns the linguistic complexity (LC) of a stringt.
+    """:py:class:`float` : Returns the linguistic complexity (LC) of a string.
 
     Solution to the Linguistic Complexity of a Genome problem (LING):
 
@@ -957,3 +1013,77 @@ def linguistic_sequence_complexity(s: str, A: set, /) -> float:
     num_possible_substrings = sum(min(m ** k, n - k + 1) for k in range(1, n + 1))
 
     return num_observed_substrings / num_possible_substrings
+
+
+def random_dna_strings(s: str | Bio.Seq.Seq, A: typing.Iterable[float], /, *, roundto: int = 3) -> tuple[float]:
+    """:py:class:`tuple` : An array of common logarithms of probabilities determined by a given string and an array of possible GC content values.
+
+    Solution to the Introduction to Random Strings problem (PROB):
+
+    https://rosalind.info/problems/prob/
+
+    Returns an array :math:`B` having the same length as :math:`A` in which
+    :math:`B[i]` represents the common logarithm (:math:`log_10`) of the
+    probability that a random string :math:`s`
+    constructed with the GC-content found in :math:`A[i]` will match
+    :math:`s` exactly.
+
+    If :math:`s` is :math:`s_0s_1 \\cdots s_{n - 1}` then the probability that
+    a random string with a GC content :math:`x` will match :math:`s` exactly
+    is given by:
+
+    .. math::
+
+       \\begin{align}
+       \\prod_{i=0}^n P(s_i) &= \\sum_{i=0}^n P(s_i) \\
+                             &= (n_A + n_T)\\frac{x}{2} + (n_C + n_G)\\frac{(1 - x)}{2}
+       \\end{align}
+
+    where :math:`n_A, n_C, n_G, n_T` are the base counts of :math:`s`.
+
+    Parameters
+    ----------
+
+    s : str
+        The input DNA string (or sequence).
+
+    A : typing.Iterable
+        An iterable of floats representing possible GC content values of the
+        given string.
+
+    roundto : int, default=3
+        An optional number of digits to round the values to, with a default
+        of ``3``.
+
+    Returns
+    -------
+    tuple
+        A tuple of common logarithms of probabilities, where the ``i``-th
+        value represents the base 10 log of the probability that a random
+        string constructed with the GC-content found in ``A[i]`` will match
+        ``s`` exactly.
+
+    Examples
+    --------
+    >>> random_dna_strings("ACGATACAA", [0.129, 0.287, 0.423, 0.476, 0.641, 0.742, 0.783])
+    (-5.737, -5.217, -5.263, -5.360, -5.958, -6.628, -7.009,)
+    """
+    # A function to build a frequency table for the bases based on the given
+    # GC content.
+    def base_frequency_table(gc_content: float) -> dict[str, float]:
+        x = gc_content
+
+        return {
+            'A': (1 - x) / 2,
+            'C': x / 2,
+            'G': x / 2,
+            'T': (1 - x) / 2
+        }
+
+    logs = []
+
+    for gc_content in A:
+        bft = base_frequency_table(gc_content)
+        logs.append(round(sum(math.log10(bft[b]) for b in s), roundto))
+
+    return tuple(logs)
