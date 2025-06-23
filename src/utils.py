@@ -17,15 +17,17 @@ Generic utilities.
 # -- IMPORTS --
 
 # -- Standard libraries --
+import functools
 import typing
 
-from itertools import chain, permutations, product
+from itertools import batched, chain, compress, groupby, permutations, product
 
 # -- 3rd party libraries --
 
 # -- Internal libraries --
 
 
+@functools.cache
 def find_subsequence(s: str, t: str) -> tuple[int] | typing.Literal[()]:
     """:py:class:`tuple` : Returns a tuple of ``s`-indices of elements of a string ``t`` occurring in ``s`` as a subsequence, or an empty tuple if it is not the case.
 
@@ -78,6 +80,7 @@ def find_subsequence(s: str, t: str) -> tuple[int] | typing.Literal[()]:
     return tuple(hits) if len(hits) == len(t) else ()
 
 
+@functools.cache
 def find_substring(s: str, t: str) -> tuple[int] | typing.Literal[()]:
     """:py:class:`tuple` : Returns a tuple of starting ``s``-indices of substring matches of a string ``t`` in a string ``s``, or an empty tuple if not found.
 
@@ -174,7 +177,8 @@ def hamming_difference(s: str, t: str, /) -> typing.Generator[tuple[int, tuple[s
     )
 
 
-def longest_common_substring(strs: typing.Iterable[str], /) -> str:
+@functools.cache
+def longest_common_substring(strs: tuple[str], /) -> str:
     """:py:class:`str` : Returns a longest common substring among an iterable of strings.
 
     Utility function for the solution to the Finding a Shared Motif problem
@@ -184,8 +188,9 @@ def longest_common_substring(strs: typing.Iterable[str], /) -> str:
 
     Parameters
     ----------
-    str : typing.Iterable
-        An iterable of strings.
+    strs : tuple
+        A tuple of strings. The tuple requirement is due to the fact that
+        the function uses a cache, which requires arguments to be hashable.
 
     Returns
     -------

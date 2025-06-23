@@ -48,7 +48,7 @@ def test_fibo_rabbits():
 
 
 def test_max_gc_content():
-    assert max_gc_content(SeqIO.parse("tests/rosalind_gc.txt", "fasta")) == ('Rosalind_6127', 26.282722513089006)
+    assert max_gc_content(SeqIO.parse("tests/rosalind_gc.txt", "fasta")) == ('Rosalind_6344', 51.68884339815762)
 
 
 def test_point_mutations():
@@ -71,7 +71,7 @@ def test_translate_rna_into_protein():
 def test_splice_rna():
     assert splice_rna(
         "ATGGTCTACATAGCTGACAAACAGCACGTAGCAATCGGTCGAATCTCGAGAGGCATATGGTCACATGATCGGTCGAGCGTGTTTCAAAGTTTGCGCCTAG",
-        ["ATCGGTCGAA", "ATCGGTCGAGCGTGT"]
+        ("ATCGGTCGAA", "ATCGGTCGAGCGTGT")
     ) == "MVYIADKQHVASREAYGHMFKVCA"
 
 
@@ -95,12 +95,12 @@ def test_protein_mass():
 
 
 def test_longest_common_shared_motif():
-    assert longest_common_shared_motif(["ACCC", "GGTT"]) == ""
-    assert longest_common_shared_motif(["GATTACA", "TAGACCA", "ATACA"]) == "TA"
+    assert longest_common_shared_motif(("ACCC", "GGTT")) == ""
+    assert longest_common_shared_motif(("GATTACA", "TAGACCA", "ATACA")) == "TA"
 
 
 def test_sequence_distance_matrix():
-    assert sequence_distance_matrix(["TTTCCATTTA", "GATTCATTTC", "TTTCCATTTT", "GTTCCATTTA"]) == (
+    assert sequence_distance_matrix(("TTTCCATTTA", "GATTCATTTC", "TTTCCATTTT", "GTTCCATTTA")) == (
         [[0.0, 0.4, 0.1, 0.1],
          [0.4, 0.0, 0.4, 0.3],
          [0.1, 0.4, 0.0, 0.2],
@@ -109,7 +109,7 @@ def test_sequence_distance_matrix():
 
 
 def test_profile_matrix():
-    assert profile_matrix(['ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT']) == (
+    assert profile_matrix(('ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT')) == (
         'ATGCAACT',
         [[5, 1, 0, 0, 5, 5, 0, 0],
          [0, 0, 1, 4, 2, 0, 6, 1],
@@ -169,12 +169,12 @@ def test_variable_length_lexicographic_ordering():
 
 
 def test_linguistic_sequence_complexity():
-    assert linguistic_sequence_complexity("ATTTGGATT", {"A", "C", "G", "T"}) == 0.875
+    assert linguistic_sequence_complexity("ATTTGGATT", "ACGT") == 0.875
 
 
 def test_random_dna_strings():
     assert random_dna_strings(
         "ACGATACAA",
-        [0.129, 0.287, 0.423, 0.476, 0.641, 0.742, 0.783],
+        (0.129, 0.287, 0.423, 0.476, 0.641, 0.742, 0.783),
         roundto=3
     ) == (-5.737, -5.217, -5.263, -5.360, -5.958, -6.628, -7.009,)

@@ -29,6 +29,7 @@ __all__ = [
 
 # -- Standard libraries --
 import collections
+import functools
 import math
 import re
 import typing
@@ -151,6 +152,7 @@ RNA_CODON_TABLE = {
 }
 
 
+@functools.cache
 def basecount(s: str | Bio.Seq.Seq, /) -> collections.Counter:
     """:py:class:`collections.Counter` : Returns a dict of DNA bases and their counts in a given DNA sequence.
 
@@ -176,6 +178,7 @@ def basecount(s: str | Bio.Seq.Seq, /) -> collections.Counter:
     return Counter(s)
 
 
+@functools.cache
 def transcribe_dna_to_rna(s: str | Bio.Seq.Seq, /) -> str:
     """:py:class:`str` : Returns an RNA transcription of a DNA string.
 
@@ -200,6 +203,7 @@ def transcribe_dna_to_rna(s: str | Bio.Seq.Seq, /) -> str:
     return str(s).translate(str.maketrans('T', 'U'))
 
 
+@functools.cache
 def reverse_complement(s: str | Bio.Seq.Seq, /) -> str:
     """:py:class:`str` : Returns the reverse complement of a DNA string, which is the reversed string with the bases complemented.
 
@@ -230,6 +234,7 @@ def reverse_complement(s: str | Bio.Seq.Seq, /) -> str:
     return str(s)[::-1].translate(str.maketrans("ATCG", "TAGC"))
 
 
+@functools.cache
 def fibo_rabbits(n: int, k: int) -> int:
     """:py:class:`int` : The number of rabbit pairs alive after ``n`` months, starting with 1 pair and with each reproductive-age pair producing ``k`` pairs.
 
@@ -314,7 +319,7 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
     ('Rosalind_6127', 26.282722513089006)
     """
     def gc_content(s: str | Bio.Seq.Seq, /) -> float:
-        return sum(1 for b in s if b in ['C' or 'G']) / len(s)
+        return sum(1 for b in s if b in ['C', 'G']) / len(s)
 
     sorted_gc_contents = sorted(
         {
@@ -327,6 +332,7 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
     return sorted_gc_contents[-1]
 
 
+@functools.cache
 def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
     """:py:class:`int` : Returns a (non-negative) integer count of the mutations (or differences) in two DNA sequences of equal length.
 
@@ -359,6 +365,7 @@ def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
     return sum(1 for d in hamming_difference(s, t))
 
 
+@functools.cache
 def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> float:
     """:py:class:`float` : The ratio of transitions to transversions in two given sequences.
 
@@ -401,6 +408,7 @@ def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /)
     return transitions / transversions
 
 
+@functools.cache
 def translate_rna_to_protein(s: str | Bio.Seq.Seq, /) -> str:
     """:py:class:`str` : Returns a protein sequence encoded by an RNA seq.
 
@@ -439,7 +447,8 @@ def translate_rna_to_protein(s: str | Bio.Seq.Seq, /) -> str:
     return encoding
 
 
-def splice_rna(s: str | Bio.Seq.Seq, introns: typing.Iterable[str | Bio.Seq.Seq], /) -> str:
+@functools.cache
+def splice_rna(s: str | Bio.Seq.Seq, introns: tuple[str | Bio.Seq.Seq], /) -> str:
     """:py:class:`str` : Solution to the RNA Splicing problem.
 
     Solution to the RNA Splicing problem (SPLC):
@@ -451,9 +460,11 @@ def splice_rna(s: str | Bio.Seq.Seq, introns: typing.Iterable[str | Bio.Seq.Seq]
     s : str
         The input DNA string/sequence.
 
-    introns : typing.Iterable
-        An iterable of segments of the input string which represent entities
-        called introns, which must be removed.
+    introns : tuple
+        A tuple of segments of the input string which represent entities
+        called introns, which must be removed.  The tuple requirement is due
+        to the fact that the function uses a cache, which requires arguments
+        to be hashable.
 
     Returns
     -------
@@ -478,6 +489,7 @@ def splice_rna(s: str | Bio.Seq.Seq, introns: typing.Iterable[str | Bio.Seq.Seq]
     return translate_rna_to_protein(transcribe_dna_to_rna(s1))
 
 
+@functools.cache
 def count_dna_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int]:
     """:py:class:`tuple` : A tuple of all starting indices of occurrences of a DNA subsequence in the given DNA sequence.
 
@@ -514,6 +526,7 @@ def count_dna_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int]
     return tuple(map(lambda i: i + 1, b)) if b else ()
 
 
+@functools.cache
 def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int] | None:
     """:py:class:`tuple` or None : Returns a tuple of 1-indexed array indices of a sequence ``t`` if it is a subsequence of ``s``, or null if not.
 
@@ -554,6 +567,7 @@ def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[i
     return tuple(map(lambda i: i + 1, ixs)) if ixs else ()
 
 
+@functools.cache
 def protein_mass(s: str | Bio.Seq.Seq, /) -> float:
     """:py:class:`float` : Calculates the mass of a protein sequence using the monoisotopic mass table.
 
@@ -579,7 +593,8 @@ def protein_mass(s: str | Bio.Seq.Seq, /) -> float:
     return sum(MONOISOTOPIC_MASS_TABLE[c] for c in s)
 
 
-def longest_common_shared_motif(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> str:
+@functools.cache
+def longest_common_shared_motif(seqs: tuple[str | Bio.Seq.Seq], /) -> str:
     """:py:class:`str` : Returns a longest common substring among an iterable of strings.
 
     Solution to the Finding a Shared Motif problem (LCSM):
@@ -588,9 +603,11 @@ def longest_common_shared_motif(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> 
 
     Parameters
     ----------
-    seqs : typing.Iterable
-        An iterable of strings, which may be given as plain strings or
-        Biopython genetic sequences (:py:class:`Bio.Seq.Seq`).
+    seqs : tuple
+        A tuple of strings, which may be given as plain strings or
+        Biopython genetic sequences (:py:class:`Bio.Seq.Seq`).  The tuple
+        requirement is due to the fact that the function uses a cache,
+        which requires arguments to be hashable.
 
     Returns
     -------
@@ -607,7 +624,8 @@ def longest_common_shared_motif(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> 
     return longest_common_substring(seqs)
 
 
-def sequence_distance_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> list[list[float]]:
+@functools.cache
+def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[float]]:
     """:py:class:`list` : Returns a (symmetric) matrix of relative Hamming distances for all (ordered) pairs of sequences from an iterable of equal-length genetic sequences.
     
     Solution to the Creating a Distance Matrix problem (PDST):
@@ -620,9 +638,11 @@ def sequence_distance_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> lis
 
     Parameters
     ----------
-    seqs : typing.Iterable
+    seqs : tuple
         An iterable of equal-length, plain Python strings or genetic sequences
-        given as Biopython sequences (:py:class:`Bio.Seq.Seq`).
+        given as Biopython sequences (:py:class:`Bio.Seq.Seq`).  The tuple
+        requirement is due to the fact that the function uses a cache, which
+        requires arguments to be hashable.
 
     Returns
     -------
@@ -678,7 +698,8 @@ def sequence_distance_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq], /) -> lis
     return mat
 
 
-def profile_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq]) -> tuple:
+@functools.cache
+def profile_matrix(seqs: tuple[str | Bio.Seq.Seq]) -> tuple:
     """:py:class:`tuple` : Returns the consensus string and profile matrix for a collection of DNA sequences/strings.
 
     Solution to the Consensus and Profile problem (CONS):
@@ -687,8 +708,10 @@ def profile_matrix(seqs: typing.Iterable[str | Bio.Seq.Seq]) -> tuple:
 
     Parameters
     ----------
-    seqs : typing.Iterable
-        A collection of DNA sequences (or strings).
+    seqs : tuple
+        A tuple of DNA sequences (or strings).  The tuple requirement is due
+        to the fact that the function uses a cache, which requires arguments
+        to be hashable.
 
     Returns
     -------
@@ -956,7 +979,8 @@ def variable_length_lexicographic_ordering(s: str, k: int) -> typing.Generator[s
     yield from word_grams(s, k)
 
 
-def linguistic_sequence_complexity(s: str, A: set, /) -> float:
+@functools.cache
+def linguistic_sequence_complexity(s: str, A: str, /) -> float:
     """:py:class:`float` : Returns the linguistic complexity (LC) of a string.
 
     Solution to the Linguistic Complexity of a Genome problem (LING):
@@ -982,8 +1006,9 @@ def linguistic_sequence_complexity(s: str, A: set, /) -> float:
     s : str
         The input string.
 
-    A : set
-        The underlying alphabet of the string.
+    A : str
+        The underlying alphabet of the string, as a string (unique letters
+        of the alphabet in the natural order, without repetitions).
 
     Returns
     -------
@@ -1015,7 +1040,8 @@ def linguistic_sequence_complexity(s: str, A: set, /) -> float:
     return num_observed_substrings / num_possible_substrings
 
 
-def random_dna_strings(s: str | Bio.Seq.Seq, A: typing.Iterable[float], /, *, roundto: int = 3) -> tuple[float]:
+@functools.cache
+def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float], /, *, roundto: int = 3) -> tuple[float]:
     """:py:class:`tuple` : An array of common logarithms of probabilities determined by a given string and an array of possible GC content values.
 
     Solution to the Introduction to Random Strings problem (PROB):
@@ -1043,13 +1069,13 @@ def random_dna_strings(s: str | Bio.Seq.Seq, A: typing.Iterable[float], /, *, ro
 
     Parameters
     ----------
-
     s : str
         The input DNA string (or sequence).
 
-    A : typing.Iterable
-        An iterable of floats representing possible GC content values of the
-        given string.
+    A : tuple
+        A tuple of floats representing possible GC content values of the
+        given string.  The tuple requirement is due to the fact that the
+        function uses a cache, which requires arguments to be hashable.
 
     roundto : int, default=3
         An optional number of digits to round the values to, with a default
