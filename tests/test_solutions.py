@@ -118,6 +118,17 @@ def test_profile_matrix():
     )
 
 
+def test_overlap_graph():
+    seqs = ["AAATAAA", "AAATTTT", "TTTTCCC", "AAATCCC", "GGGTGGG"]
+    sids = ["Rosalind_0498", "Rosalind_2391", "Rosalind_2323", "Rosalind_0442", "Rosalind_5013"]
+    srecs = [Bio.SeqRecord.SeqRecord(seq, id=sid) for seq, sid in zip(seqs, sids)]
+    assert overlap_graph(srecs, k=3) == (
+        ('Rosalind_0498', 'Rosalind_2391'),
+        ('Rosalind_0498', 'Rosalind_0442'),
+        ('Rosalind_2391', 'Rosalind_2323')
+    )
+
+
 def test_oriented_gene_orderings():
     assert list(oriented_gene_orderings(2)) == [
         (1, 2), (2, 1), (1, -2), (-2, 1), (-1, 2), (2, -1), (-1, -2), (-2, -1)

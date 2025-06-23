@@ -10,6 +10,7 @@ __all__ = [
     'longest_common_shared_motif',
     'max_gc_content',
     'MONOISOTOPIC_MASS_TABLE',
+    'overlap_graph',
     'point_mutations',
     'profile_matrix',
     'protein_mass',
@@ -709,7 +710,7 @@ def profile_matrix(seqs: tuple[str | Bio.Seq.Seq]) -> tuple:
     Parameters
     ----------
     seqs : tuple
-        A tuple of DNA sequences (or strings).  The tuple requirement is due
+        A tuple of DNA sequences (or strings). The tuple requirement is due
         to the fact that the function uses a cache, which requires arguments
         to be hashable.
 
@@ -752,6 +753,57 @@ def profile_matrix(seqs: tuple[str | Bio.Seq.Seq]) -> tuple:
                 consensus_str[j] = b
 
     return ''.join(consensus_str), profile_matrix
+
+
+def overlap_graph(seqs: typing.Iterable[Bio.SeqRecord.SeqRecord], k: int) -> tuple[tuple[str, str]]:
+    """:py:class:`tuple` : Returns a tuple of edges of the ``O_k`` overlap graph of a tuple of DNA sequences/strings.
+
+    Solution to the Overlap Graphs problem (GRPH):
+
+    https://rosalind.info/problems/grph/
+
+    The ``O_k`` overlap graph of a set of DNA sequences is defined as a
+    directed graph where nodes/vertices are sequences, and there is
+    an edge for every ordered pair of sequences such that the ``k``-length
+    prefix of the first matches the ``k``-length prefix of the second,
+    excluding pairs where both sequences are identical.
+
+    .. note::
+    Under this definition it is possible that the graph may include edges
+    that connect the same pair of sequences in both directions, e.g. if
+    ``s`` is ``"AAACGGG"``, ``t``is ``"GGGTAAA"``, and ``k`` is ``3``. This
+    means that we must use ordered pairs of sequences, not unordered pairs.
+
+    In this implementation, as it is a solution for the ROSALIND problem which
+    requires the output of sequence pairs to be given in terms of sequence IDs,
+    the nodes of the graph are sequence IDs.
+
+    Parameters
+    ----------
+    seqs : typing.Iterable
+        An iterable of DNA sequences/strings given as
+        :py:class:`Bio.SeqRecord.SeqRecord` objects.
+
+    k : int
+        The graph parameter ``k``.
+
+    Returns
+    -------
+    tuple
+        A tuple of edges of the ``O_k`` overlap graph of the given sequences,
+        where each edge is a pair of sequence IDs which satisfy the overlap
+        graph requirement described above.
+    """
+    G = []
+
+    for s, t in permutations(seqs, 2):
+        # Note that the use of ``itertools.permutations`` ensures that pairs
+        # involving an identical sequence are excluded, which means we don't
+        # have to check if they are different. 
+        if s.seq[-k:] == t.seq[:k]:
+            G.append((s.id, t.id))
+
+    return tuple(G)
 
 
 def oriented_gene_orderings(n: int, /) -> typing.Generator[tuple[int], None, None]:
