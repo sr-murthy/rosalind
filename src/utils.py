@@ -230,8 +230,8 @@ def levenshtein_distance(
     insertion_cost: int | float  = 1,
     deletion_cost: int | float = 1,
     substitution_cost: int | float = 1
-) -> float:
-    """:py:class:`int` : Returns the Levenshtein distance between two strings.
+) -> int | float:
+    """:py:class:`int` or :py:class:`float` : Returns the Levenshtein distance between two strings.
 
     This is a utility function for the Edit Distance problem (EDIT):
 
@@ -265,7 +265,7 @@ def levenshtein_distance(
 
     Returns
     -------
-    float
+    int or float
         The Levenshtein distance between the two strings.
 
     Examples
