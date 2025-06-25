@@ -756,7 +756,7 @@ def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[flo
 
 @functools.cache
 def profile_matrix(seqs: tuple[str | Bio.Seq.Seq]) -> tuple:
-    """:py:class:`tuple` : Returns the consensus string and profile matrix for a collection of DNA sequences/strings.
+    """:py:class:`tuple` : Returns the consensus string and profile matrix for a collection of equal-lenth DNA sequences/strings.
 
     Solution to the Consensus and Profile problem (CONS):
 
@@ -765,9 +765,9 @@ def profile_matrix(seqs: tuple[str | Bio.Seq.Seq]) -> tuple:
     Parameters
     ----------
     seqs : tuple
-        A tuple of DNA sequences (or strings). The tuple requirement is due
-        to the fact that the function uses a cache, which requires arguments
-        to be hashable.
+        A tuple of equal length DNA sequences (or strings). The tuple
+        requirement is due to the fact that the function uses a cache, which
+        requires arguments to be hashable.
 
     Returns
     -------
@@ -800,12 +800,18 @@ def profile_matrix(seqs: tuple[str | Bio.Seq.Seq]) -> tuple:
     # The bases string
     base_str = 'ACGT'
 
-    # The main loop
+    # The outer loop on columns (letters of the consensus string)
     for j in range(n):
+        # The inner loop on rows (bases)
         for i, b in enumerate(base_str):
+            # Set the ``(i, j)``-th value as the number of sequences whose
+            # ``j``-letter is equal to the current base ``b``
             profile_matrix[i][j] = sum(1 for s in seqs if s[j] == b)
-            if profile_matrix[i][j] == max(profile_matrix[x][j] for x in range(4)):
-                consensus_str[j] = b
+            # Having completed the last row of the profile matrix for column ``j``
+            # calculate the ``j``-th letter of the consensus string as the base
+            # with highest frequency in the column.
+            if i == 3:
+                consensus_str[j] = max(base_str, key=lambda x: profile_matrix[base_str.index(x)][j])
 
     return ''.join(consensus_str), profile_matrix
 
