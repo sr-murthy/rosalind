@@ -14,6 +14,8 @@ Notes
 
 * Solutions always produce raw values, and don't depend on formatting, e.g. [GC](https://rosalind.info/problems/gc/) (Computing GC Content), where the marking on ROSALIND depends on formatting the answer in a particular way.
 
+* The function docstrings are written using the [Numpy docstring style](https://numpydoc.readthedocs.io/en/latest/format.html).
+
 * For more background on [linguistic complexity (LC)](https://rosalind.info/problems/ling/) [see](https://pmc.ncbi.nlm.nih.gov/articles/PMC441604/pdf/gkh466.pdf), page W630.
 
 * The counting of kmers in the [KMER](https://rosalind.info/problems/kmer/) (k-Mer Composition) problem must take overlapping substrings into account: so a [custom function](https://github.com/sr-murthy/rosalind/blob/main/src/utils.py#L155) has been used for this purpose, as [`str.count`](https://docs.python.org/3/library/stdtypes.html#str.count) only counts non-overlapping occurences.
