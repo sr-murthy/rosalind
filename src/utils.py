@@ -2,6 +2,8 @@ __all__ = [
     'find_subsequence',
     'find_substring',
     'hamming_difference',
+    'hamming_distance',
+    'levenshtein_distance',
     'longest_common_substring',
     'signed_permutations',
     'word_grams',
@@ -135,10 +137,10 @@ def find_substring(s: str, t: str) -> tuple[int] | typing.Literal[()]:
 def hamming_difference(s: str, t: str, /) -> typing.Generator[tuple[int, tuple[str, str]], None, None]:
     """:py:class:`tuple` : Generates pairs of indices and corresponding elements that determine the Hamming distance between two equal-length strings.
 
-    Utility function for the solution to the Counting Point Mutations problem
-    (HAMM):
+    Utility function for the solution to the Transitions and Transversions
+    problem (TRAN):
 
-    https://rosalind.info/problems/hamm/
+    https://rosalind.info/problems/tran/
 
     The "Hamming difference" is here defined as a sequence of the indices
     and the corresponding element pairs of the two sequences where differences
@@ -159,6 +161,11 @@ def hamming_difference(s: str, t: str, /) -> typing.Generator[tuple[int, tuple[s
         Pairs of indices and corresponding element pairs where differences
         occur in the two strings.
 
+    Raises
+    ------
+    ValueError
+        If the two strings are not equal in length.
+
     Examples
     --------
     >>> list(hamming_difference("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT"))
@@ -171,9 +178,127 @@ def hamming_difference(s: str, t: str, /) -> typing.Generator[tuple[int, tuple[s
      (15, ('A', 'C'))]
     
     """
+    if len(s) != len(t):
+        raise ValueError("Two equal length strings are required for the Hamming difference")
+
     yield from (
         (i, (a, b)) for i, (a, b) in enumerate(zip(s, t))
         if a != b
+    )
+
+
+@functools.cache
+def hamming_distance(s: str, t: str, /) -> int:
+    """:py:class:`int` : Returns the Hamming distance between two equal-length strings.
+
+    Utility function for the solution to the Counting Point Mutations problem
+    (HAMM):
+
+    https://rosalind.info/problems/hamm/
+
+    Calls on :py:func:`utils.hamming_distance`.
+
+    Parameters
+    ----------
+    s : str
+        The first string.
+
+    t : str
+        The second string, equal in length to the first.
+
+    Returns
+    -------
+    int
+        The Hamming distance between the two strings.
+
+    Examples
+    --------
+    >>> hamming_distance("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT"))
+    7
+    >>> hamming_distance("ACGT", "ACGT")
+    0
+    """
+    return sum(1 for d in hamming_difference(s, t))
+
+
+@functools.cache
+def levenshtein_distance(
+    s: str,
+    t: str,
+    /,
+    *,
+    insertion_cost: int | float  = 1,
+    deletion_cost: int | float = 1,
+    substitution_cost: int | float = 1
+) -> float:
+    """:py:class:`int` : Returns the Levenshtein distance between two strings.
+
+    This is a utility function for the Edit Distance problem (EDIT):
+
+    https://rosalind.info/problems/edit/
+
+    This is a cached recursive implementation, with customisable costs for
+    the insertion, deletion, and substitution operations, where these
+    operations are to be performed on the first string, ``s``, to make it
+    equal to the second string ``t``.
+
+    .. note::
+
+       This implementation accepts ``int`` or ``float``-valued cost parameters.
+
+    Parameters
+    ----------
+    s : str
+        The first string.
+
+    t : str
+        The second string, equal in length to the first.
+
+    insertion_cost : int, float, default=1
+        An optional insertion cost, defaulting to ``1``.
+
+    deletion_cost : int, float, default=1
+        An optional deletion cost, defaulting to ``1``.
+
+    substitution_cost : int, float, default=1
+        An optional substition cost, defaulting to ``1``.
+
+    Returns
+    -------
+    float
+        The Levenshtein distance between the two strings.
+
+    Examples
+    --------
+    # Minimal examples with (a) insertion cost of 1 (for ``s``)
+    >>> levenshtein_distance("read", "bread"))
+    1
+    # ... (b) deletion cost of 1
+    >>> levenshtein_distance("bread", "read")
+    1
+    # ... (c) substitution cost of 1
+    >>> levenshtein_distance("bread", "tread")
+    1
+    """
+    # If ``s`` is empty then ``|t|`` insertions (into ``s``) are required to
+    # make it equal to ``t``.
+    if len(s) == 0:
+        return len(t)
+
+    # If ``t`` is empty then ``|s|`` deletions (from ``s``) are required to
+    # make it equal to ``s``.
+    if len(t) == 0:
+        return len(s)
+
+    # If the heads of both strings are equal there are no costs for these,
+    # so compute the distance for the tails
+    if s[0] == t[0]:
+        return levenshtein_distance(s[1:], t[1:])
+
+    return min(
+        insertion_cost + levenshtein_distance(s, t[1:]),        # insertion of ``t[0]`` at ``s[0]``
+        deletion_cost + levenshtein_distance(s[1:], t),         # deletion of ``s[0]``
+        substitution_cost + levenshtein_distance(s[1:], t[1:])  # substitution of ``t[0]`` for ```s[0]``
     )
 
 

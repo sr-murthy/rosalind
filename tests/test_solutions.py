@@ -64,6 +64,14 @@ def test_transition_transversion_ratio():
     ) == 1.2142857142857142
 
 
+def test_edit_distance():
+    assert edit_distance("ACGT", "AGCT") == 2
+    assert edit_distance("AAGACTCTGG", "CGTTTAACTT") == 8
+    assert edit_distance("ACGT", "ACGT") == 0
+    assert edit_distance("ACGT", "") == 4
+    assert edit_distance("", "ACGT") == 4
+
+
 def test_translate_rna_into_protein():
     assert translate_rna_to_protein("AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA") == 'MAMAPRTEINSTRING'
 

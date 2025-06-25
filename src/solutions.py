@@ -1,7 +1,7 @@
 __all__ = [
     'basecount',
     'count_dna_motif',
-    'oriented_gene_orderings',
+    'edit_distance',
     'fibo_rabbits',
     'find_spliced_motif',
     'kmer_composition',
@@ -10,6 +10,7 @@ __all__ = [
     'longest_common_shared_motif',
     'max_gc_content',
     'MONOISOTOPIC_MASS_TABLE',
+    'oriented_gene_orderings',
     'overlap_graph',
     'point_mutations',
     'profile_matrix',
@@ -48,6 +49,8 @@ from utils import (
     find_subsequence,
     find_substring,
     hamming_difference,
+    hamming_distance,
+    levenshtein_distance,
     longest_common_substring,
     signed_permutations,
     word_grams,
@@ -363,7 +366,7 @@ def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
     >>> point_mutations("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT")
     7
     """
-    return sum(1 for d in hamming_difference(s, t))
+    return hamming_distance(s, t)
 
 
 @functools.cache
@@ -407,6 +410,59 @@ def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /)
             transversions += 1
 
     return transitions / transversions
+
+
+@functools.cache
+def edit_distance(s: str, t: str, /) -> int:
+    """:py:class:`int` : Returns the edit distance (also called Levenshtein distance) between two DNA/RNA/protein strings/sequences.
+
+    This is a solution to the Edit Distance problem (EDIT):
+
+    https://rosalind.info/problems/edit/
+
+    Calls on :py:func:`utils.levenshtein_distance` with insertion, deletion and
+    substitution costs set to 1.
+
+    .. note::
+
+       The edit distance is computed in a way to only consider insertions,
+       deletions and substitution operations (on the first string relative to
+       the second string). More generic distance metrics exist that include
+       transpositions (swapping), but that is excluded here (and in the
+       Rosalind problem definition).
+
+    .. note::
+
+       This cached recursive implementation is slower than equivalent
+       iterative implementations, but is more readable.
+
+    Parameters
+    ----------
+    s : str
+        The first string.
+
+    t : str
+        The second string, equal in length to the first.
+
+    Returns
+    -------
+    int
+        The edit distance between the two strings.
+
+    Examples
+    --------
+    >>> edit_distance("ACGT", "AGCT")
+    2
+    >>> edit_distance("AAGACTCTGG", "CGTTTAACTT")
+    8
+    >>> edit_distance("ACGT", "ACGT")
+    0
+    >>> edit_distance("ACGT", "")
+    4
+    >>> edit_distance("", "ACGT")
+    4
+    """
+    return int(levenshtein_distance(s, t, insertion_cost=1, deletion_cost=1, substitution_cost=1))
 
 
 @functools.cache
