@@ -33,16 +33,14 @@ __all__ = [
 import collections
 import functools
 import math
-import re
 import typing
 
 from collections import Counter
-from itertools import chain, permutations, product
+from itertools import permutations
 
 # -- 3rd party libraries --
 import Bio
 
-from Bio import SeqIO
 
 # -- Internal libraries --
 from utils import (

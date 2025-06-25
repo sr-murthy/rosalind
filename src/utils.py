@@ -22,7 +22,7 @@ Generic utilities.
 import functools
 import typing
 
-from itertools import batched, chain, compress, groupby, permutations, product
+from itertools import chain, permutations, product
 
 # -- 3rd party libraries --
 
