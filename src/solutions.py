@@ -318,7 +318,7 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
     --------
     >>> from Bio import SeqIO
     >>> max_gc_content(SeqIO.parse("./rosalind_gc.txt", "fasta"))
-    ('Rosalind_6127', 26.282722513089006)
+    ('Rosalind_6344', 51.68884339815762)
     """
     def gc_content(s: str | Bio.Seq.Seq, /) -> float:
         return sum(1 for b in s if b in ['C', 'G']) / len(s)
@@ -594,8 +594,9 @@ def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[i
        The indices are given in terms of 1-indexed arrays - just subtract 1
        from them all to convert them to 0-indexed array indices. Also, the
        indices will not necessarily be unique, as there may be multiple
-       occurrences  - the earliest occurring indices will be returned,
-       in case of a subsequence match.
+       occurrences - the earliest occurring indices will be returned,
+       in case of a subsequence match, and later occurrences, if they exist,
+       are ignored.
 
     Parameters
     ----------
