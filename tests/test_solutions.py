@@ -116,13 +116,13 @@ def test_sequence_distance_matrix():
     )
 
 
-def test_profile_matrix():
-    assert profile_matrix(('ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT')) == (
+def test_consensus_string():
+    assert consensus_string(('ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT')) == (
         'ATGCAACT',
-        [[5, 1, 0, 0, 5, 5, 0, 0],
+        ([5, 1, 0, 0, 5, 5, 0, 0],
          [0, 0, 1, 4, 2, 0, 6, 1],
          [1, 1, 6, 3, 0, 1, 0, 0],
-         [1, 5, 0, 0, 0, 1, 1, 6]]
+         [1, 5, 0, 0, 0, 1, 1, 6])
     )
 
 
