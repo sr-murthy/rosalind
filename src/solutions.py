@@ -1,5 +1,6 @@
 __all__ = [
     'basecount',
+    'consensus_string',
     'count_dna_motif',
     'edit_distance',
     'fibo_rabbits',
@@ -13,7 +14,6 @@ __all__ = [
     'oriented_gene_orderings',
     'overlap_graph',
     'point_mutations',
-    'profile_matrix',
     'protein_mass',
     'random_dna_strings',
     'reverse_complement',
@@ -31,15 +31,19 @@ __all__ = [
 
 # -- Standard libraries --
 import collections
+import decimal
 import functools
 import math
 import typing
 
 from collections import Counter
+from decimal import Decimal
 from itertools import permutations
 
 # -- 3rd party libraries --
 import Bio
+
+from Bio import Seq, SeqIO
 
 
 # -- Internal libraries --
@@ -336,14 +340,13 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
 
 @functools.cache
 def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
-    """:py:class:`int` : Returns a (non-negative) integer count of the mutations (or differences) in two DNA sequences of equal length.
+    """:py:class:`int` : Returns an integer count of the mutations in two equal-length DNA sequences.
 
     Solution to the Counting Point Mutations problem (HAMM):
 
     https://rosalind.info/problems/hamm/
 
-    This is an application of the **Hamming distance** metric from computer
-    science, as applied to DNA sequences.
+    This is an application of the **Hamming distance** metric.
 
     Parameters
     ----------
@@ -368,18 +371,18 @@ def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
 
 
 @functools.cache
-def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> float:
-    """:py:class:`float` : The ratio of transitions to transversions in two given sequences.
+def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> decimal.Decimal:
+    """:py:class:`float` : The ratio of transitions to transversions in two equal-length DNA sequences.
 
     Solution to the Transitions and Traversions problem (TRAN):
 
     https://rosalind.info/problems/tran/
 
-    In two equal-length sequences transitions and transversions are defined as
+    In two equal-length DNA sequences transitions and transversions are defined as
     follows:
 
         transition:  A <-> G, C <-> T
-        tranversion: A <-> C, A <-> T, G <-> T, G <-> C
+        tranversion: A <-> C, A <-> T, G <-> C, G <-> T
 
     Parameters
     ----------
@@ -391,8 +394,8 @@ def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /)
 
     Returns
     -------
-    float
-        The ratio of transitions to transversions between the two strings.
+    decimal.Decimal
+        The ratio of transitions to transversions in the two strings.
 
     Examples
     --------
@@ -407,12 +410,12 @@ def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /)
         else:
             transversions += 1
 
-    return transitions / transversions
+    return Decimal(transitions) / Decimal(transversions)
 
 
 @functools.cache
 def edit_distance(s: str, t: str, /) -> int:
-    """:py:class:`int` : Returns the edit distance (also called Levenshtein distance) between two DNA/RNA/protein strings/sequences.
+    """:py:class:`int` : Returns the edit distance (more generally called Levenshtein distance) between two DNA/RNA/protein strings/sequences.
 
     This is a solution to the Edit Distance problem (EDIT):
 
@@ -423,16 +426,8 @@ def edit_distance(s: str, t: str, /) -> int:
 
     .. note::
 
-       The edit distance is computed in a way to only consider insertions,
-       deletions and substitution operations (on the first string relative to
-       the second string). More generic distance metrics exist that include
-       transpositions (swapping), but that is excluded here (and in the
-       Rosalind problem definition).
-
-    .. note::
-
-       This cached recursive implementation is slower than equivalent
-       iterative implementations, but is more readable.
+       This cached recursive implementation is slower than equivalent iterative
+       implementations, but is more readable and thus easier to understand.
 
     Parameters
     ----------
@@ -460,7 +455,7 @@ def edit_distance(s: str, t: str, /) -> int:
     >>> edit_distance("", "ACGT")
     4
     """
-    return int(levenshtein_distance(s, t, insertion_cost=1, deletion_cost=1, substitution_cost=1))
+    return levenshtein_distance(s, t, insertion_cost=1, deletion_cost=1, substitution_cost=1)
 
 
 @functools.cache
@@ -609,7 +604,7 @@ def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[i
     Returns
     -------
     tuple
-        The 1-indexed ``s``-indices of the bases of ``t`` if it occurs as a
+        The 1-indexed ``s``-indices of the bases of ``t``, if ``t`` occurs as a
         subsequence of ``s``, or null if not. Not necessarily unique - the
         earliest occurring indices are returned in case of a subsequence match.
 
@@ -755,12 +750,20 @@ def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[flo
 
 
 @functools.cache
-def profile_matrix(seqs: tuple[str | Bio.Seq.Seq]) -> tuple:
+def consensus_string(seqs: tuple[str | Bio.Seq.Seq]) -> tuple[str, list[int]]:
     """:py:class:`tuple` : Returns the consensus string and profile matrix for a collection of equal-lenth DNA sequences/strings.
 
     Solution to the Consensus and Profile problem (CONS):
 
     https://rosalind.info/problems/cons/
+
+    .. note::
+
+       The iterable must be hashable, e.g. tuples not lists: it must contain
+       strings or ``Bio.Seq.Seq`` objects, which are hashable, and not
+       ``Bio.SeqRecord.SeqRecord`` objects, which are not hashable.
+
+       The profile matrix is returned as a tuple of integer-valued lists.
 
     Parameters
     ----------
@@ -776,28 +779,27 @@ def profile_matrix(seqs: tuple[str | Bio.Seq.Seq]) -> tuple:
 
     Examples
     --------
-    >>> seqs = ['ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT']
-    >>> cs, pm = profile_matrix(seqs)
+    >>> seqs = tuple(['ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT'])
+    >>> cs, pm = consensus_string(seqs)
     >>> print(cs)
     ATGCAACT
     >>> for i, b in enumerate('ACGT'):
-    ...     print(f'{c}: ' + ' '.join(map(str, pm[i])))
+    ...     print(f'{b}: ' + ' '.join(map(str, pm[i])))
     A: 5 1 0 0 5 5 0 0
     C: 0 0 1 4 2 0 6 1
     G: 1 1 6 3 0 1 0 0
     T: 1 5 0 0 0 1 1 6
     """
-    # Take any sequence, but we can use the initial one to set
-    # the (column) width of the matrix.
+    # Define the width of the matrix.
     n = len(seqs[0])
 
-    # The initial ``4 x n`` profile matrix of zeros
+    # Create the initial ``4 x n`` profile matrix of zeros
     profile_matrix = [list([0] * n) for i in range(4)]
 
     # A list of blanks to store the characters of the consensus string
     consensus_str = list([''] * n)
 
-    # The bases string
+    # The bases string (in order, and with no repetitions)
     base_str = 'ACGT'
 
     # The outer loop on columns (letters of the consensus string)
@@ -805,15 +807,15 @@ def profile_matrix(seqs: tuple[str | Bio.Seq.Seq]) -> tuple:
         # The inner loop on rows (bases)
         for i, b in enumerate(base_str):
             # Set the ``(i, j)``-th value as the number of sequences whose
-            # ``j``-letter is equal to the current base ``b``
+            # ``j``-th letter is equal to the current base ``b``
             profile_matrix[i][j] = sum(1 for s in seqs if s[j] == b)
-            # Having completed the last row of the profile matrix for column ``j``
-            # calculate the ``j``-th letter of the consensus string as the base
-            # with highest frequency in the column.
+            # Having completed the last row of the profile matrix for
+            # column ``j`` calculate the ``j``-th letter of the consensus
+            # string as the base with highest frequency in the column.
             if i == 3:
                 consensus_str[j] = max(base_str, key=lambda x: profile_matrix[base_str.index(x)][j])
-
-    return ''.join(consensus_str), profile_matrix
+    
+    return ''.join(consensus_str), tuple(profile_matrix)
 
 
 def overlap_graph(seqs: typing.Iterable[Bio.SeqRecord.SeqRecord], k: int) -> tuple[tuple[str, str]]:
@@ -826,8 +828,8 @@ def overlap_graph(seqs: typing.Iterable[Bio.SeqRecord.SeqRecord], k: int) -> tup
     The ``O_k`` overlap graph of a set of DNA sequences is defined as a
     directed graph where nodes/vertices are sequences, and there is
     an edge for every ordered pair of sequences such that the ``k``-length
-    prefix of the first matches the ``k``-length prefix of the second,
-    excluding pairs where both sequences are identical.
+    suffix of the first matches the ``k``-length prefix of the second. Pairs
+    of identical sequences are excluded.
 
     .. note::
     Under this definition it is possible that the graph may include edges
@@ -1013,9 +1015,8 @@ def kmer_composition(s: str | Bio.Seq.Seq, A: str, k: int) -> typing.Generator[i
     -------
     int
         A generator of ``k``-mer frequencies in the given string/sequence, where
-        the ``i``th value is the frequency of the ``i``-th kmer of ``A`` in
-        ``s``,and ``i`` is the index of the kmer in the natural ordering of all
-        ``k``-mers of ``A``.
+        the ``i``th value is the ``i``-th ``k``-mer of ``A`` in
+        ``s``, given in the natural ordering of all ``k``-mers of ``A``.
 
     Examples
     --------
@@ -1174,11 +1175,13 @@ def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float], /, *, roundto: int
     .. math::
 
        \\begin{align}
-       \\prod_{i=0}^n P(s_i) &= \\sum_{i=0}^n P(s_i) \\
+       \\prod_{i=0}^{n - 1} P(s_i) &= \\sum_{i=0}^n P(s_i) \\
                              &= (n_A + n_T)\\frac{x}{2} + (n_C + n_G)\\frac{(1 - x)}{2}
        \\end{align}
 
-    where :math:`n_A, n_C, n_G, n_T` are the base counts of :math:`s`.
+    where :math:`n_A, n_C, n_G, n_T` are the base counts of :math:`s`, and
+    :math:`P(s_0),\\ldots,P(s_{n - 1})` are the probabilities of the letters
+    of :math:`s`.
 
     Parameters
     ----------

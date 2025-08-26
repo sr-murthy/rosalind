@@ -57,11 +57,11 @@ def test_point_mutations():
 
 
 def test_transition_transversion_ratio():
-    assert transition_transversion_ratio("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT") == 0.16666666666666666
+    assert transition_transversion_ratio("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT") == Decimal('0.1666666666666666666666666667')
     assert transition_transversion_ratio(
         "GCAACGCACAACGAAAACCCTTAGGGACTGGATTATTTCGTGATCGTTGTAGTTATTGGAAGTACGGGCATCAACCCAGTT",
         "TTATCTGACAAAGAAAGCCGTCAACGGCTGGATAATTTCGCGATCGTGCTGGTTACTGGCGGTACGAGTGTTCCTTTGGGT"
-    ) == 1.2142857142857142
+    ) == Decimal('1.214285714285714285714285714')
 
 
 def test_edit_distance():
@@ -116,13 +116,13 @@ def test_sequence_distance_matrix():
     )
 
 
-def test_profile_matrix():
-    assert profile_matrix(('ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT')) == (
+def test_consensus_string():
+    assert consensus_string(('ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT')) == (
         'ATGCAACT',
-        [[5, 1, 0, 0, 5, 5, 0, 0],
+        ([5, 1, 0, 0, 5, 5, 0, 0],
          [0, 0, 1, 4, 2, 0, 6, 1],
          [1, 1, 6, 3, 0, 1, 0, 0],
-         [1, 5, 0, 0, 0, 1, 1, 6]]
+         [1, 5, 0, 0, 0, 1, 1, 6])
     )
 
 

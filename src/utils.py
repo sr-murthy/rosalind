@@ -286,7 +286,7 @@ def levenshtein_distance(
         return len(t)
 
     # If ``t`` is empty then ``|s|`` deletions (from ``s``) are required to
-    # make it equal to ``s``.
+    # make it equal to ``t``.
     if len(t) == 0:
         return len(s)
 
@@ -377,7 +377,7 @@ def signed_permutations(n: int, /) -> typing.Generator[tuple[int], None, None]:
 
     .. note::
 
-       The number of signed permutations of :math:`n` is given by:
+       The number of signed permutations of :math:`1..n` is given by:
 
        .. math::
 
@@ -462,7 +462,7 @@ def word_grams(w: str, k: int) -> typing.Generator[str, None, None]:
     Parameters
     ----------
     w : str
-        The word/string from which to generate the 1-, 2-,..., k-grams.
+        The word/string from which to generate the 1-, 2-,..., ``k``-grams.
 
     k : int
         The maximum length of the word grams.
