@@ -298,7 +298,7 @@ def fibo_rabbits(n: int, k: int) -> int:
             return x
 
 
-def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Iterable[Bio.SeqRecord.SeqRecord], /) -> tuple[str, float]:
+def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Iterable[Bio.SeqRecord.SeqRecord], /) -> tuple[str, decimal.Decimal]:
     """:py:class:`str` : Returns a tuple containing a record ID and GC content percentage for the FASTA record with the highest GC content in a FASTA file.
 
     Solution to the Computing GC Content problem (GC):
@@ -322,12 +322,12 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
     --------
     >>> from Bio import SeqIO
     >>> max_gc_content(SeqIO.parse("./rosalind_gc.txt", "fasta"))
-    ('Rosalind_6344', 51.68884339815762)
+    ('Rosalind_6344', Decimal('51.68884339815762'))
     """
-    def gc_content(s: str | Bio.Seq.Seq, /) -> float:
-        return sum(1 for b in s if b in ['C', 'G']) / len(s)
+    def gc_content(s: str | Bio.Seq.Seq, /) -> decimal.Decimal:
+        return Decimal(sum(1 for base in s if base in ['C', 'G'])) / Decimal(len(s))
 
-    sorted_gc_contents = sorted(
+    sorted_gc_contents: dict[str, Decimal] = sorted(
         {
             record.id: gc_content(record.seq) * 100
             for record in fasta_records
@@ -372,7 +372,7 @@ def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
 
 @functools.cache
 def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> decimal.Decimal:
-    """:py:class:`float` : The ratio of transitions to transversions in two equal-length DNA sequences.
+    """:py:class:`decimal.Decimal`` : The ratio of transitions to transversions in two equal-length DNA sequences.
 
     Solution to the Transitions and Traversions problem (TRAN):
 
@@ -383,6 +383,9 @@ def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /)
 
         transition:  A <-> G, C <-> T
         tranversion: A <-> C, A <-> T, G <-> C, G <-> T
+
+    This means that transitions and transversions are mutually exclusive: a
+    change of base is either a transition or a transversion.
 
     Parameters
     ----------
@@ -401,11 +404,11 @@ def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /)
     --------
     >>> transition_transversion_ratio("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT")
     """
-    transitions = 0
-    transversions = 0
+    transitions: int = 0
+    transversions: int = 0
 
-    for _, d in hamming_difference(s, t):
-        if d in [('A', 'G'), ('G', 'A'), ('C', 'T'), ('T', 'C')]:
+    for _, diff in hamming_difference(s, t):
+        if diff in [('A', 'G'), ('G', 'A'), ('C', 'T'), ('T', 'C')]:
             transitions += 1
         else:
             transversions += 1
@@ -486,11 +489,11 @@ def translate_rna_to_protein(s: str | Bio.Seq.Seq, /) -> str:
     >>> translate_rna_to_protein("AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA")
     'MAMAPRTEINSTRING'
     """
-    encoding = ''
-    i = 0
+    encoding: str = ''
+    i: int = 0
 
     while i < len(s) - 2:
-        codon = s[i: i + 3]
+        codon: str = s[i: i + 3]
         encoding += RNA_CODON_TABLE[codon]
         i += 3
 
@@ -528,15 +531,15 @@ def splice_rna(s: str | Bio.Seq.Seq, introns: tuple[str | Bio.Seq.Seq], /) -> st
     'MVYIADKQHVASREAYGHMFKVCA'
     """
     # A local initial copy of ``s``
-    s1 = s
+    s_copy: str = s
 
     # Remove the introns - note that using ``re.sub`` won't work if the inputs are
     # ``Bio.Seq.Seq`` objects, hence the use of ``str.replace``.
     for i in introns:
-        s1 = s1.replace(i, '')
+        s_copy = s_copy.replace(i, '')
 
     # Now perform the DNA -> RNA -> Protein transformation and return
-    return translate_rna_to_protein(transcribe_dna_to_rna(s1))
+    return translate_rna_to_protein(transcribe_dna_to_rna(s_copy))
 
 
 @functools.cache
@@ -571,13 +574,13 @@ def count_dna_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int]
     >>> count_dna_motif("GATATATGCATATACTT", "ATAT")
     (2, 4, 10)
     """
-    b = find_substring(s, t)
+    base: tuple[int] | typing.Literal[()] = find_substring(s, t)
 
-    return tuple(map(lambda i: i + 1, b)) if b else ()
+    return tuple(map(lambda i: i + 1, base)) if base else ()
 
 
 @functools.cache
-def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int] | None:
+def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int] | typing.Literal[()]:
     """:py:class:`tuple` or None : Returns a tuple of 1-indexed array indices of a sequence ``t`` if it is a subsequence of ``s``, or null if not.
 
     Solution to the Finding a Spliced Motif problem (SSEQ):
@@ -613,14 +616,14 @@ def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[i
     >>> find_spliced_motif("ACGTACGTGACG", "GTA")
     (3, 4, 5)
     """
-    ixs = find_subsequence(s, t)
+    ixs: tuple[int] | typing.Literal[()] = find_subsequence(s, t)
 
     return tuple(map(lambda i: i + 1, ixs)) if ixs else ()
 
 
 @functools.cache
-def protein_mass(s: str | Bio.Seq.Seq, /) -> float:
-    """:py:class:`float` : Calculates the mass of a protein sequence using the monoisotopic mass table.
+def protein_mass(s: str | Bio.Seq.Seq, /) -> decimal.Decimal:
+    """:py:class:`decimal.Decimal`` : Calculates the mass of a protein sequence using the monoisotopic mass table.
 
     Solution to the Calculating Protein Mass problem (PRTM):
 
@@ -633,15 +636,15 @@ def protein_mass(s: str | Bio.Seq.Seq, /) -> float:
 
     Returns
     -------
-    float
+    decimal.Decimal
         The protein string mass.
 
     Examples
     --------
-    >>> protein_mass("SKADYEK")
-    821.39192
+    >>> round(protein_mass("SKADYEK"), 5)
+    Decimal('821.39192')
     """
-    return sum(MONOISOTOPIC_MASS_TABLE[c] for c in s)
+    return Decimal(sum(MONOISOTOPIC_MASS_TABLE[char] for char in s))
 
 
 @functools.cache
@@ -676,7 +679,7 @@ def longest_common_shared_motif(seqs: tuple[str | Bio.Seq.Seq], /) -> str:
 
 
 @functools.cache
-def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[float]]:
+def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[decimal.Decimal]]:
     """:py:class:`list` : Returns a (symmetric) matrix of relative Hamming distances for all (ordered) pairs of sequences from an iterable of equal-length genetic sequences.
     
     Solution to the Creating a Distance Matrix problem (PDST):
@@ -704,27 +707,28 @@ def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[flo
 
     Examples
     --------
-    >>> seqs = ["TTTCCATTTA", "GATTCATTTC", "TTTCCATTTT", "GTTCCATTTA"]
+    # Define a tuple input for the function caching to work
+    >>> seqs = ("TTTCCATTTA", "GATTCATTTC", "TTTCCATTTT", "GTTCCATTTA")
     >>> sequence_distance_matrix(seqs)
-    [[0.0, 0.4, 0.1, 0.1],
-     [0.4, 0.0, 0.4, 0.3],
-     [0.1, 0.4, 0.0, 0.2],
-     [0.1, 0.3, 0.2, 0.0]]
+    [[0.0, Decimal('0.4'), Decimal('0.1'), Decimal('0.1')],
+     [Decimal('0.4'), 0.0, Decimal('0.4'), Decimal('0.3')],
+     [Decimal('0.1'), Decimal('0.4'), 0.0, Decimal('0.2')],
+     [Decimal('0.1'), Decimal('0.3'), Decimal('0.2'), 0.0]]
     """
-    n = len(seqs)
+    n: int = len(seqs)
 
     # Set up ``n x n`` matrix of zeros - note that this construction below
     # using a list comprehension is designed to ensure that all of the zero
     # arrays are different objects in memory.
-    mat = []
+    mat: list = []
     [mat.append(list([0.] * n)) for i in range(n)]
 
     # A variable to store the common sequence length from the length of the
     # 1st sequence
-    m = len(seqs[0])
+    m: int = len(seqs[0])
 
     # The outer loop on rows
-    i = 0
+    i: int = 0
     while i < n:
         # The column index always starts from ``i`` so that we always have
         # ``i <= j``
@@ -741,7 +745,7 @@ def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[flo
             # and use the the same value for the transposed entry ``(j, i)``,
             # avoiding another calculation.
             else:
-                mat[i][j] = point_mutations(seqs[i], seqs[j]) / m
+                mat[i][j] = Decimal(point_mutations(seqs[i], seqs[j])) / Decimal(m)
                 mat[j][i] = mat[i][j]
             j += 1
         i += 1
@@ -779,7 +783,7 @@ def consensus_string(seqs: tuple[str | Bio.Seq.Seq]) -> tuple[str, list[int]]:
 
     Examples
     --------
-    >>> seqs = tuple(['ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT'])
+    >>> seqs = ('ATCCAGCT', 'GGGCAACT', 'ATGGATCT', 'AAGCAACC', 'TTGGAACT', 'ATGCCATT', 'ATGGCACT')
     >>> cs, pm = consensus_string(seqs)
     >>> print(cs)
     ATGCAACT
@@ -791,24 +795,24 @@ def consensus_string(seqs: tuple[str | Bio.Seq.Seq]) -> tuple[str, list[int]]:
     T: 1 5 0 0 0 1 1 6
     """
     # Define the width of the matrix.
-    n = len(seqs[0])
+    n: int = len(seqs[0])
 
     # Create the initial ``4 x n`` profile matrix of zeros
-    profile_matrix = [list([0] * n) for i in range(4)]
+    profile_matrix: list[list[int]] = [list([0] * n) for i in range(4)]
 
     # A list of blanks to store the characters of the consensus string
-    consensus_str = list([''] * n)
+    consensus_str: list[str] = list([''] * n)
 
     # The bases string (in order, and with no repetitions)
-    base_str = 'ACGT'
+    base_str: str = 'ACGT'
 
     # The outer loop on columns (letters of the consensus string)
     for j in range(n):
         # The inner loop on rows (bases)
-        for i, b in enumerate(base_str):
+        for i, base in enumerate(base_str):
             # Set the ``(i, j)``-th value as the number of sequences whose
             # ``j``-th letter is equal to the current base ``b``
-            profile_matrix[i][j] = sum(1 for s in seqs if s[j] == b)
+            profile_matrix[i][j] = sum(1 for seq in seqs if seq[j] == base)
             # Having completed the last row of the profile matrix for
             # column ``j`` calculate the ``j``-th letter of the consensus
             # string as the base with highest frequency in the column.
@@ -818,7 +822,7 @@ def consensus_string(seqs: tuple[str | Bio.Seq.Seq]) -> tuple[str, list[int]]:
     return ''.join(consensus_str), tuple(profile_matrix)
 
 
-def overlap_graph(seqs: typing.Iterable[Bio.SeqRecord.SeqRecord], k: int) -> tuple[tuple[str, str]]:
+def overlap_graph(seqs: typing.Iterable[Bio.SeqRecord.SeqRecord], k: int, /) -> tuple[tuple[str, str]]:
     """:py:class:`tuple` : Returns a tuple of edges of the ``O_k`` overlap graph of a tuple of DNA sequences/strings.
 
     Solution to the Overlap Graphs problem (GRPH):
@@ -857,7 +861,7 @@ def overlap_graph(seqs: typing.Iterable[Bio.SeqRecord.SeqRecord], k: int) -> tup
         where each edge is a pair of sequence IDs which satisfy the overlap
         graph requirement described above.
     """
-    G = []
+    G: list[tuple[str, str]] = []
 
     for s, t in permutations(seqs, 2):
         # Note that the use of ``itertools.permutations`` ensures that pairs
@@ -984,7 +988,7 @@ def lexicographic_kmers(s: str, k: int) -> typing.Generator[str, None, None]:
      'TG',
      'TT']
     """
-    yield from word_k_grams(s, k)
+    yield from word_k_grams(s, k=k)
 
 
 def kmer_composition(s: str | Bio.Seq.Seq, A: str, k: int) -> typing.Generator[int, None, None]:
@@ -1090,12 +1094,12 @@ def variable_length_lexicographic_ordering(s: str, k: int) -> typing.Generator[s
      'AAN',
      'AAA']
     """
-    yield from word_grams(s, k)
+    yield from word_grams(s, k=k)
 
 
 @functools.cache
-def linguistic_sequence_complexity(s: str, A: str, /) -> float:
-    """:py:class:`float` : Returns the linguistic complexity (LC) of a string.
+def linguistic_sequence_complexity(s: str, A: str, /) -> decimal.Decimal:
+    """:py:class:`float` : Returns the linguistic complexity (LC) of a string ``s`` formed over an alphabet ``A``.
 
     Solution to the Linguistic Complexity of a Genome problem (LING):
 
@@ -1126,20 +1130,20 @@ def linguistic_sequence_complexity(s: str, A: str, /) -> float:
 
     Returns
     -------
-    float
+    decimal.Decimal
         The linguistic complexity of the string.
 
     Examples
     --------
-    >>> linguistic_sequence_complexity("ATTTGGATT")
-    0.875
+    >>> linguistic_sequence_complexity("ATTTGGATT", "ACGT")
+    Decimal('0.875')
     """
-    n = len(s)
-    m = len(A)
+    n: int = len(s)
+    m: int = len(A)
 
     # Calculate the number of observed substrings as the sum of the number of
     # ``k``-length substrings found in the string, for ``k`` in ``1..n``.
-    num_observed_substrings = len(set(s)) + sum(
+    num_observed_substrings: int = len(set(s)) + sum(
         len(set([s[j: j + k] for j in range(n - k + 1)]))
         for k in range(2, n + 1)
     )
@@ -1149,18 +1153,26 @@ def linguistic_sequence_complexity(s: str, A: str, /) -> float:
     # into the given string, overlapping as necessary. For each ``k`` the
     # maximum number of possible ``k``-length substrings that can fit into
     # the string is equal to ``min(m^k, n - k + 1)``.
-    num_possible_substrings = sum(min(m ** k, n - k + 1) for k in range(1, n + 1))
+    num_possible_substrings: int = sum(min(m ** k, n - k + 1) for k in range(1, n + 1))
 
-    return num_observed_substrings / num_possible_substrings
+    return Decimal(num_observed_substrings) / Decimal(num_possible_substrings)
 
 
 @functools.cache
-def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float], /, *, roundto: int = 3) -> tuple[float]:
+def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float | decimal.Decimal], /, *, roundto: int = 3) -> tuple[decimal.Decimal]:
     """:py:class:`tuple` : An array of common logarithms of probabilities determined by a given string and an array of possible GC content values.
 
     Solution to the Introduction to Random Strings problem (PROB):
 
     https://rosalind.info/problems/prob/
+
+    .. note::
+
+       The array of GC content values must be given as tuple, because the
+       function uses caching (:py:func:`functools.cache`), which requires
+       the arguments to be hashable: in Python tuples are immutable and
+       therefore hashable, while mutable containers such as lists, sets and
+       dicts are not hashable.
 
     Returns an array :math:`B` having the same length as :math:`A` in which
     :math:`B[i]` represents the common logarithm (:math:`log_10`) of the
@@ -1189,9 +1201,10 @@ def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float], /, *, roundto: int
         The input DNA string (or sequence).
 
     A : tuple
-        A tuple of floats representing possible GC content values of the
-        given string.  The tuple requirement is due to the fact that the
-        function uses a cache, which requires arguments to be hashable.
+        A tuple of floats or :py:class``decimal.Decimal`` objects, representing
+        possible GC content values of the given string.  The tuple requirement
+        is due to the fact that the function uses a cache
+        (:py:func:`functools.cache`) which requires arguments to be hashable.
 
     roundto : int, default=3
         An optional number of digits to round the values to, with a default
@@ -1207,13 +1220,13 @@ def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float], /, *, roundto: int
 
     Examples
     --------
-    >>> random_dna_strings("ACGATACAA", [0.129, 0.287, 0.423, 0.476, 0.641, 0.742, 0.783])
-    (-5.737, -5.217, -5.263, -5.360, -5.958, -6.628, -7.009,)
+    >>> random_dna_strings("ACGATACAA", (0.129, 0.287, 0.423, 0.476, 0.641, 0.742, 0.783))
+    (Decimal('-5.737'), Decimal('-5.217'), Decimal('-5.263'), Decimal('-5.360'), Decimal('-5.958'), Decimal('-6.628'), Decimal('-7.009'))
     """
     # A function to build a frequency table for the bases based on the given
     # GC content.
-    def base_frequency_table(gc_content: float) -> dict[str, float]:
-        x = gc_content
+    def base_frequency_table(gc_content: decimal.Decimal) -> dict[str, decimal.Decimal]:
+        x: decimal.Decimal = Decimal(gc_content)
 
         return {
             'A': (1 - x) / 2,
@@ -1222,10 +1235,10 @@ def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float], /, *, roundto: int
             'T': (1 - x) / 2
         }
 
-    logs = []
+    logs: list[decimal.Decimal] = []
 
     for gc_content in A:
-        bft = base_frequency_table(gc_content)
-        logs.append(round(sum(math.log10(bft[b]) for b in s), roundto))
+        table: dict[str, decimal.Decimal] = base_frequency_table(Decimal(gc_content))
+        logs.append(round(Decimal(sum(math.log10(table[base]) for base in s)), roundto))
 
     return tuple(logs)

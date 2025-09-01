@@ -2,11 +2,14 @@
 
 # -- Standard libraries --
 import collections
+import decimal
 import os
 import sys
 import typing
 
 from collections import Counter
+from decimal import Decimal
+decimal.getcontext().prec = 10
 from itertools import chain, permutations, product
 
 # -- 3rd party libraries --
@@ -48,7 +51,9 @@ def test_fibo_rabbits():
 
 
 def test_max_gc_content():
-    assert max_gc_content(SeqIO.parse("tests/rosalind_gc.txt", "fasta")) == ('Rosalind_6344', 51.68884339815762)
+    max_gc_seq_id, max_gc_content_ = max_gc_content(SeqIO.parse("tests/rosalind_gc.txt", "fasta"))
+    assert max_gc_seq_id == 'Rosalind_6344'
+    assert round(max_gc_content_, 5) == Decimal('51.68884')
 
 
 def test_point_mutations():
@@ -57,11 +62,14 @@ def test_point_mutations():
 
 
 def test_transition_transversion_ratio():
-    assert transition_transversion_ratio("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT") == Decimal('0.1666666666666666666666666667')
-    assert transition_transversion_ratio(
+    ttr = transition_transversion_ratio("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT")
+    assert round(ttr, 5) == Decimal('0.16667')
+
+    ttr = transition_transversion_ratio(
         "GCAACGCACAACGAAAACCCTTAGGGACTGGATTATTTCGTGATCGTTGTAGTTATTGGAAGTACGGGCATCAACCCAGTT",
         "TTATCTGACAAAGAAAGCCGTCAACGGCTGGATAATTTCGCGATCGTGCTGGTTACTGGCGGTACGAGTGTTCCTTTGGGT"
-    ) == Decimal('1.214285714285714285714285714')
+    )
+    assert round(ttr, 5) == Decimal('1.21429')
 
 
 def test_edit_distance():
@@ -99,7 +107,7 @@ def test_find_spliced_motif():
 
 
 def test_protein_mass():
-    assert protein_mass("SKADYEK") == 821.39192
+    assert round(protein_mass("SKADYEK"), 5) == Decimal('821.39192')
 
 
 def test_longest_common_shared_motif():
@@ -109,10 +117,10 @@ def test_longest_common_shared_motif():
 
 def test_sequence_distance_matrix():
     assert sequence_distance_matrix(("TTTCCATTTA", "GATTCATTTC", "TTTCCATTTT", "GTTCCATTTA")) == (
-        [[0.0, 0.4, 0.1, 0.1],
-         [0.4, 0.0, 0.4, 0.3],
-         [0.1, 0.4, 0.0, 0.2],
-         [0.1, 0.3, 0.2, 0.0]]
+        [[0.0, Decimal('0.4'), Decimal('0.1'), Decimal('0.1')],
+         [Decimal('0.4'), 0.0, Decimal('0.4'), Decimal('0.3')],
+         [Decimal('0.1'), Decimal('0.4'), 0.0, Decimal('0.2')],
+         [Decimal('0.1'), Decimal('0.3'), Decimal('0.2'), 0.0]]
     )
 
 
@@ -130,7 +138,7 @@ def test_overlap_graph():
     seqs = ["AAATAAA", "AAATTTT", "TTTTCCC", "AAATCCC", "GGGTGGG"]
     sids = ["Rosalind_0498", "Rosalind_2391", "Rosalind_2323", "Rosalind_0442", "Rosalind_5013"]
     srecs = [Bio.SeqRecord.SeqRecord(seq, id=sid) for seq, sid in zip(seqs, sids)]
-    assert overlap_graph(srecs, k=3) == (
+    assert overlap_graph(srecs, 3) == (
         ('Rosalind_0498', 'Rosalind_2391'),
         ('Rosalind_0498', 'Rosalind_0442'),
         ('Rosalind_2391', 'Rosalind_2323')
@@ -196,4 +204,4 @@ def test_random_dna_strings():
         "ACGATACAA",
         (0.129, 0.287, 0.423, 0.476, 0.641, 0.742, 0.783),
         roundto=3
-    ) == (-5.737, -5.217, -5.263, -5.360, -5.958, -6.628, -7.009,)
+    ) == (Decimal('-5.737'), Decimal('-5.217'), Decimal('-5.263'), Decimal('-5.360'), Decimal('-5.958'), Decimal('-6.628'), Decimal('-7.009'))

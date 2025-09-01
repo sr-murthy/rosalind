@@ -68,11 +68,12 @@ def find_subsequence(s: str, t: str) -> tuple[int] | typing.Literal[()]:
     if not (s and t):
         return ()
 
-    hits = []
-    start = 0
+    hits: list[int] = []
+    start: int = 0
+    i: int = 0
 
-    for c in t:
-        i = s.find(c, start)
+    for char in t:
+        i: int = s.find(char, start)
         if i != -1:
             hits.append(i)
             start = i + 1
@@ -119,9 +120,9 @@ def find_substring(s: str, t: str) -> tuple[int] | typing.Literal[()]:
     if not (s and t):
         return ()
 
-    hits = []
-    start = 0
-    i = 0
+    hits: list[int] = []
+    start: int = 0
+    i: int = 0
 
     while True:
         i = s.find(t, start)
@@ -218,7 +219,7 @@ def hamming_distance(s: str, t: str, /) -> int:
     >>> hamming_distance("ACGT", "ACGT")
     0
     """
-    return sum(1 for d in hamming_difference(s, t))
+    return sum(1 for diff in hamming_difference(s, t))
 
 
 @functools.cache
@@ -336,26 +337,26 @@ def longest_common_substring(strs: tuple[str], /) -> str:
 
     # Some key initial steps, starting with getting a smallest length
     # substring.
-    min_len_str = min(strs, key=len)
-    min_str_len = len(min_len_str)
-    str_len = len(min_len_str)
+    min_len_str: str = min(strs, key=len)
+    min_str_len: int = len(min_len_str)
+    str_len: int = len(min_len_str)
 
     # The outermost ``while`` loop on substring length, which descends from the
     # length of a smallest length string (not necessarily unique) to minimal
     # length strings (of length 1).
     while str_len > 0:
-        i = 0
+        i: int = 0
         # The innermost ``while`` loop on substrings of length ``substr_len``
         while i < min_str_len - str_len + 1:
-            cur_substr = min_len_str[i: i + str_len]
+            cur_substr: str = min_len_str[i: i + str_len]
             # If the current substring isn't common then skip to the next
             # substring
             if any(cur_substr not in s for s in strs):
                 i += 1
                 continue
 
-            # The current substring must be the common largest, as it hasn't
-            # failed the checks, so return it.
+            # The current substring must be the longest common one, as it
+            # hasn't failed the checks, so return it.
             return cur_substr
 
         # Otherwise decrement the substring length, and start the next
@@ -451,8 +452,8 @@ def signed_permutations(n: int, /) -> typing.Generator[tuple[int], None, None]:
     )
 
 
-def word_grams(w: str, k: int) -> typing.Generator[str, None, None]:
-    """:py:class:`typing.Generator` : Returns a generator of all 1-grams, 2-grams, ..., k-grams of a word ``w`` in lexicographic order.
+def word_grams(word: str, /, *, k: int) -> typing.Generator[str, None, None]:
+    """:py:class:`typing.Generator` : Returns a generator of all 1-grams, 2-grams, ..., k-grams of a given word in lexicographic order.
     
     Utility function for the Solution to the Ordering Strings of Varying Length
     Lexicographically problem (LEXV):
@@ -461,7 +462,7 @@ def word_grams(w: str, k: int) -> typing.Generator[str, None, None]:
 
     Parameters
     ----------
-    w : str
+    word : str
         The word/string from which to generate the 1-, 2-,..., ``k``-grams.
 
     k : int
@@ -516,26 +517,26 @@ def word_grams(w: str, k: int) -> typing.Generator[str, None, None]:
      'AAA']
     """
     # Map characters in ``w`` to their (0-indexed array) indices.
-    w_charmap = {c: i for i, c in enumerate(w)}
+    word_charmap: dict = {char: i for i, char in enumerate(word)}
 
     # A lexicographic scoring function for the word grams which uses the
     # sequence character map of ``s`` to build a tuple of indices of a given
     # word gram. The resulting tuples can be compared and ordered
     # lexicographically.
-    def lex_score(wg: str | list) -> tuple[int]:
-        return tuple(w_charmap[c] for c in wg)
+    def lex_score(word_gram: str | list) -> tuple[int]:
+        return tuple(word_charmap[char] for char in word_gram)
 
     # Map all word grams of length at most ``k`` to their lex scores.
-    subs = {
+    substrs: dict = {
         ''.join(p): lex_score(p)
-        for p in chain.from_iterable(product(w, repeat=j) for j in range(1, k + 1))
+        for p in chain.from_iterable(product(word, repeat=j) for j in range(1, k + 1))
     }
 
     # Now sort them by their lex scores, and generate them.
-    yield from sorted(subs, key=lambda wg: subs[wg])
+    yield from sorted(substrs, key=lambda word_gram: substrs[word_gram])
 
 
-def word_k_grams(w: str, k: int) -> typing.Generator[str, None, None]:
+def word_k_grams(w: str, /, *, k: int) -> typing.Generator[str, None, None]:
     """:py:class:`typing.Generator` : Returns a generator of all ``k``-grams of a given word ``w`` in lexicographic order.
     
     Utility function for the solution to the Enumerating k-mers
