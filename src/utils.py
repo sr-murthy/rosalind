@@ -170,13 +170,7 @@ def hamming_difference(s: str, t: str, /) -> typing.Generator[tuple[int, tuple[s
     Examples
     --------
     >>> list(hamming_difference("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT"))
-    [(0, ('G', 'C')),
-     (2, ('G', 'T')),
-     (4, ('C', 'G')),
-     (7, ('C', 'A')),
-     (9, ('A', 'G')),
-     (14, ('G', 'C')),
-     (15, ('A', 'C'))]
+    [(0, ('G', 'C')), (2, ('G', 'T')), (4, ('C', 'G')), (7, ('C', 'A')), (9, ('A', 'G')), (14, ('G', 'C')), (15, ('A', 'C'))]
     
     """
     if len(s) != len(t):
@@ -214,7 +208,7 @@ def hamming_distance(s: str, t: str, /) -> int:
 
     Examples
     --------
-    >>> hamming_distance("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT"))
+    >>> hamming_distance("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT")
     7
     >>> hamming_distance("ACGT", "ACGT")
     0
@@ -272,12 +266,10 @@ def levenshtein_distance(
     Examples
     --------
     # Minimal examples with (a) insertion cost of 1 (for ``s``)
-    >>> levenshtein_distance("read", "bread"))
+    >>> levenshtein_distance("read", "bread")
     1
-    # ... (b) deletion cost of 1
     >>> levenshtein_distance("bread", "read")
     1
-    # ... (c) substitution cost of 1
     >>> levenshtein_distance("bread", "tread")
     1
     """
@@ -326,7 +318,8 @@ def longest_common_substring(strs: tuple[str], /) -> str:
 
     Examples
     --------
-    >>> seqs = ["GATTACA", "TAGACCA", "ATACA"]
+    # Use a tuple input to allow the function caching to work.
+    >>> seqs = ("GATTACA", "TAGACCA", "ATACA")
     >>> longest_common_substring(seqs)
     'TA'
     """
@@ -397,54 +390,7 @@ def signed_permutations(n: int, /) -> typing.Generator[tuple[int], None, None]:
     Examples
     --------
     >>> list(signed_permutations(3))
-    [(1, 2, 3),
-     (1, 3, 2),
-     (2, 1, 3),
-     (2, 3, 1),
-     (3, 1, 2),
-     (3, 2, 1),
-     (1, 2, -3),
-     (1, -3, 2),
-     (2, 1, -3),
-     (2, -3, 1),
-     (-3, 1, 2),
-     (-3, 2, 1),
-     (1, -2, 3),
-     (1, 3, -2),
-     (-2, 1, 3),
-     (-2, 3, 1),
-     (3, 1, -2),
-     (3, -2, 1),
-     (1, -2, -3),
-     (1, -3, -2),
-     (-2, 1, -3),
-     (-2, -3, 1),
-     (-3, 1, -2),
-     (-3, -2, 1),
-     (-1, 2, 3),
-     (-1, 3, 2),
-     (2, -1, 3),
-     (2, 3, -1),
-     (3, -1, 2),
-     (3, 2, -1),
-     (-1, 2, -3),
-     (-1, -3, 2),
-     (2, -1, -3),
-     (2, -3, -1),
-     (-3, -1, 2),
-     (-3, 2, -1),
-     (-1, -2, 3),
-     (-1, 3, -2),
-     (-2, -1, 3),
-     (-2, 3, -1),
-     (3, -1, -2),
-     (3, -2, -1),
-     (-1, -2, -3),
-     (-1, -3, -2),
-     (-2, -1, -3),
-     (-2, -3, -1),
-     (-3, -1, -2),
-     (-3, -2, -1)]
+    [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1), (1, 2, -3), (1, -3, 2), (2, 1, -3), (2, -3, 1), (-3, 1, 2), (-3, 2, 1), (1, -2, 3), (1, 3, -2), (-2, 1, 3), (-2, 3, 1), (3, 1, -2), (3, -2, 1), (1, -2, -3), (1, -3, -2), (-2, 1, -3), (-2, -3, 1), (-3, 1, -2), (-3, -2, 1), (-1, 2, 3), (-1, 3, 2), (2, -1, 3), (2, 3, -1), (3, -1, 2), (3, 2, -1), (-1, 2, -3), (-1, -3, 2), (2, -1, -3), (2, -3, -1), (-3, -1, 2), (-3, 2, -1), (-1, -2, 3), (-1, 3, -2), (-2, -1, 3), (-2, 3, -1), (3, -1, -2), (3, -2, -1), (-1, -2, -3), (-1, -3, -2), (-2, -1, -3), (-2, -3, -1), (-3, -1, -2), (-3, -2, -1)]
     """
     yield from chain.from_iterable(
         permutations(p)
@@ -476,45 +422,7 @@ def word_grams(word: str, /, *, k: int) -> typing.Generator[str, None, None]:
     Examples
     --------
     >>> list(word_grams('DNA', k=3))
-    ['D',
-     'DD',
-     'DDD',
-     'DDN',
-     'DDA',
-     'DN',
-     'DND',
-     'DNN',
-     'DNA',
-     'DA',
-     'DAD',
-     'DAN',
-     'DAA',
-     'N',
-     'ND',
-     'NDD',
-     'NDN',
-     'NDA',
-     'NN',
-     'NND',
-     'NNN',
-     'NNA',
-     'NA',
-     'NAD',
-     'NAN',
-     'NAA',
-     'A',
-     'AD',
-     'ADD',
-     'ADN',
-     'ADA',
-     'AN',
-     'AND',
-     'ANN',
-     'ANA',
-     'AA',
-     'AAD',
-     'AAN',
-     'AAA']
+    ['D', 'DD', 'DDD', 'DDN', 'DDA', 'DN', 'DND', 'DNN', 'DNA', 'DA', 'DAD', 'DAN', 'DAA', 'N', 'ND', 'NDD', 'NDN', 'NDA', 'NN', 'NND', 'NNN', 'NNA', 'NA', 'NAD', 'NAN', 'NAA', 'A', 'AD', 'ADD', 'ADN', 'ADA', 'AN', 'AND', 'ANN', 'ANA', 'AA', 'AAD', 'AAN', 'AAA']
     """
     # Map characters in ``w`` to their (0-indexed array) indices.
     word_charmap: dict = {char: i for i, char in enumerate(word)}
@@ -561,21 +469,18 @@ def word_k_grams(w: str, /, *, k: int) -> typing.Generator[str, None, None]:
     Examples
     --------
     >>> list(word_k_grams('ACGT', k=2))
-    ['AA',
-     'AC',
-     'AG',
-     'AT',
-     'CA',
-     'CC',
-     'CG',
-     'CT',
-     'GA',
-     'GC',
-     'GG',
-     'GT',
-     'TA',
-     'TC',
-     'TG',
-     'TT']
+    ['AA', 'AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT']
     """
     yield from map(lambda p: ''.join(p), product(w, repeat=k))
+
+
+if __name__ == "__main__":      # pragma: no cover
+    # Doctest the module from the project root using
+    #
+    #     PYTHONPATH="src" python3 -m doctest -v src/utils.py
+    #
+    # NOTE: the doctest examples using ``float`` or ``decimal.Decimal`` values
+    #       assume a context precision of 28 digits
+    decimal.getcontext().prec = 28
+    import doctest
+    doctest.testmod()

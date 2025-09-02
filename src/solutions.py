@@ -320,9 +320,9 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
 
     Examples
     --------
-    >>> from Bio import SeqIO
-    >>> max_gc_content(SeqIO.parse("./rosalind_gc.txt", "fasta"))
-    ('Rosalind_6344', Decimal('51.68884339815762'))
+    >>> from Bio import SeqIO                                      # doctest: +SKIP
+    >>> max_gc_content(SeqIO.parse("./rosalind_gc.txt", "fasta"))  # doctest: +SKIP
+    ('Rosalind_6344', Decimal('51.68884339815762'))                # doctest: +SKIP
     """
     def gc_content(s: str | Bio.Seq.Seq, /) -> decimal.Decimal:
         return Decimal(sum(1 for base in s if base in ['C', 'G'])) / Decimal(len(s))
@@ -403,6 +403,7 @@ def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /)
     Examples
     --------
     >>> transition_transversion_ratio("GAGCCTACTAACGGGAT", "CATCGTAATGACGGCCT")
+    Decimal('0.1666666666666666666666666667')
     """
     transitions: int = 0
     transversions: int = 0
@@ -527,7 +528,7 @@ def splice_rna(s: str | Bio.Seq.Seq, introns: tuple[str | Bio.Seq.Seq], /) -> st
     Examples
     --------
     >>> s = "ATGGTCTACATAGCTGACAAACAGCACGTAGCAATCGGTCGAATCTCGAGAGGCATATGGTCACATGATCGGTCGAGCGTGTTTCAAAGTTTGCGCCTAG"
-    >>> splice_rna(s, ["ATCGGTCGAA", "ATCGGTCGAGCGTGT"])
+    >>> splice_rna(s, ("ATCGGTCGAA", "ATCGGTCGAGCGTGT"))
     'MVYIADKQHVASREAYGHMFKVCA'
     """
     # A local initial copy of ``s``
@@ -671,7 +672,8 @@ def longest_common_shared_motif(seqs: tuple[str | Bio.Seq.Seq], /) -> str:
 
     Examples
     --------
-    >>> seqs = ["GATTACA", "TAGACCA", "ATACA"]
+    # The tuple input is required to allow the function caching to work.
+    >>> seqs = ("GATTACA", "TAGACCA", "ATACA")
     >>> longest_common_shared_motif(seqs)
     'TA'
     """
@@ -709,11 +711,12 @@ def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[dec
     --------
     # Define a tuple input for the function caching to work
     >>> seqs = ("TTTCCATTTA", "GATTCATTTC", "TTTCCATTTT", "GTTCCATTTA")
-    >>> sequence_distance_matrix(seqs)
-    [[0.0, Decimal('0.4'), Decimal('0.1'), Decimal('0.1')],
-     [Decimal('0.4'), 0.0, Decimal('0.4'), Decimal('0.3')],
-     [Decimal('0.1'), Decimal('0.4'), 0.0, Decimal('0.2')],
-     [Decimal('0.1'), Decimal('0.3'), Decimal('0.2'), 0.0]]
+    >>> for row in sequence_distance_matrix(seqs):
+    ...     print(row)
+    [0.0, Decimal('0.4'), Decimal('0.1'), Decimal('0.1')]
+    [Decimal('0.4'), 0.0, Decimal('0.4'), Decimal('0.3')]
+    [Decimal('0.1'), Decimal('0.4'), 0.0, Decimal('0.2')]
+    [Decimal('0.1'), Decimal('0.3'), Decimal('0.2'), 0.0]
     """
     n: int = len(seqs)
 
@@ -893,54 +896,7 @@ def oriented_gene_orderings(n: int, /) -> typing.Generator[tuple[int], None, Non
     Examples
     --------
     >>> list(oriented_gene_orderings(3))
-    [(1, 2, 3),
-     (1, 3, 2),
-     (2, 1, 3),
-     (2, 3, 1),
-     (3, 1, 2),
-     (3, 2, 1),
-     (1, 2, -3),
-     (1, -3, 2),
-     (2, 1, -3),
-     (2, -3, 1),
-     (-3, 1, 2),
-     (-3, 2, 1),
-     (1, -2, 3),
-     (1, 3, -2),
-     (-2, 1, 3),
-     (-2, 3, 1),
-     (3, 1, -2),
-     (3, -2, 1),
-     (1, -2, -3),
-     (1, -3, -2),
-     (-2, 1, -3),
-     (-2, -3, 1),
-     (-3, 1, -2),
-     (-3, -2, 1),
-     (-1, 2, 3),
-     (-1, 3, 2),
-     (2, -1, 3),
-     (2, 3, -1),
-     (3, -1, 2),
-     (3, 2, -1),
-     (-1, 2, -3),
-     (-1, -3, 2),
-     (2, -1, -3),
-     (2, -3, -1),
-     (-3, -1, 2),
-     (-3, 2, -1),
-     (-1, -2, 3),
-     (-1, 3, -2),
-     (-2, -1, 3),
-     (-2, 3, -1),
-     (3, -1, -2),
-     (3, -2, -1),
-     (-1, -2, -3),
-     (-1, -3, -2),
-     (-2, -1, -3),
-     (-2, -3, -1),
-     (-3, -1, -2),
-     (-3, -2, -1)]
+    [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1), (1, 2, -3), (1, -3, 2), (2, 1, -3), (2, -3, 1), (-3, 1, 2), (-3, 2, 1), (1, -2, 3), (1, 3, -2), (-2, 1, 3), (-2, 3, 1), (3, 1, -2), (3, -2, 1), (1, -2, -3), (1, -3, -2), (-2, 1, -3), (-2, -3, 1), (-3, 1, -2), (-3, -2, 1), (-1, 2, 3), (-1, 3, 2), (2, -1, 3), (2, 3, -1), (3, -1, 2), (3, 2, -1), (-1, 2, -3), (-1, -3, 2), (2, -1, -3), (2, -3, -1), (-3, -1, 2), (-3, 2, -1), (-1, -2, 3), (-1, 3, -2), (-2, -1, 3), (-2, 3, -1), (3, -1, -2), (3, -2, -1), (-1, -2, -3), (-1, -3, -2), (-2, -1, -3), (-2, -3, -1), (-3, -1, -2), (-3, -2, -1)]
     """
     yield from signed_permutations(n)
 
@@ -971,22 +927,7 @@ def lexicographic_kmers(s: str, k: int) -> typing.Generator[str, None, None]:
     Examples
     --------
     >>> list(lexicographic_kmers('ACGT', k=2))
-    ['AA',
-     'AC',
-     'AG',
-     'AT',
-     'CA',
-     'CC',
-     'CG',
-     'CT',
-     'GA',
-     'GC',
-     'GG',
-     'GT',
-     'TA',
-     'TC',
-     'TG',
-     'TT']
+    ['AA', 'AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT']
     """
     yield from word_k_grams(s, k=k)
 
@@ -1054,45 +995,7 @@ def variable_length_lexicographic_ordering(s: str, k: int) -> typing.Generator[s
     Examples
     --------
     >>> list(variable_length_lexicographic_ordering('DNA', k=3))
-    ['D',
-     'DD',
-     'DDD',
-     'DDN',
-     'DDA',
-     'DN',
-     'DND',
-     'DNN',
-     'DNA',
-     'DA',
-     'DAD',
-     'DAN',
-     'DAA',
-     'N',
-     'ND',
-     'NDD',
-     'NDN',
-     'NDA',
-     'NN',
-     'NND',
-     'NNN',
-     'NNA',
-     'NA',
-     'NAD',
-     'NAN',
-     'NAA',
-     'A',
-     'AD',
-     'ADD',
-     'ADN',
-     'ADA',
-     'AN',
-     'AND',
-     'ANN',
-     'ANA',
-     'AA',
-     'AAD',
-     'AAN',
-     'AAA']
+    ['D', 'DD', 'DDD', 'DDN', 'DDA', 'DN', 'DND', 'DNN', 'DNA', 'DA', 'DAD', 'DAN', 'DAA', 'N', 'ND', 'NDD', 'NDN', 'NDA', 'NN', 'NND', 'NNN', 'NNA', 'NA', 'NAD', 'NAN', 'NAA', 'A', 'AD', 'ADD', 'ADN', 'ADA', 'AN', 'AND', 'ANN', 'ANA', 'AA', 'AAD', 'AAN', 'AAA']
     """
     yield from word_grams(s, k=k)
 
@@ -1242,3 +1145,15 @@ def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float | decimal.Decimal], 
         logs.append(round(Decimal(sum(math.log10(table[base]) for base in s)), roundto))
 
     return tuple(logs)
+
+
+if __name__ == "__main__":      # pragma: no cover
+    # Doctest the module from the project root using
+    #
+    #     PYTHONPATH="src" python3 -m doctest -v src/solutions.py
+    #
+    # NOTE: the doctest examples using ``float`` or ``decimal.Decimal`` values
+    #       assume a context precision of 28 digits
+    decimal.getcontext().prec = 28
+    import doctest
+    doctest.testmod()
