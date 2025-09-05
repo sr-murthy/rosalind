@@ -160,7 +160,7 @@ RNA_CODON_TABLE = {
 
 @functools.cache
 def basecount(s: str | Bio.Seq.Seq, /) -> collections.Counter:
-    """:py:class:`collections.Counter` : Returns a dict of DNA bases and their counts in a given DNA sequence.
+    """:py:class:`collections.Counter` : Returns a dict of DNA bases and their counts in the given DNA sequence.
 
     Solution to the Counting DNA Nucleotides problem (DNA):
 
@@ -224,8 +224,7 @@ def reverse_complement(s: str | Bio.Seq.Seq, /) -> str:
 
     Returns
     -------
-    The reverse complement of an input DNA sequence: this is the original DNA
-    sequence reversed with complements taken of the nucleobases:
+    The reverse complement of an input DNA sequence:
     ::
         A -> T
         T -> A
@@ -241,7 +240,7 @@ def reverse_complement(s: str | Bio.Seq.Seq, /) -> str:
 
 
 @functools.cache
-def fibo_rabbits(n: int, k: int) -> int:
+def fibo_rabbits(n: int, /, *, k: int = 1) -> int:
     """:py:class:`int` : The number of rabbit pairs alive after ``n`` months, starting with 1 pair and with each reproductive-age pair producing ``k`` pairs.
 
     Solution to the Rabbits and Recurrence Relations problem (FIB):
@@ -252,7 +251,7 @@ def fibo_rabbits(n: int, k: int) -> int:
 
        In month ``n`` the number of rabbit pairs present is equal to the
        number of the previous month's pairs plus any new pairs (offspring
-       pairs). We are told that each reproductive-age rabbit pair produces
+       pairs). It is given that each reproductive-age rabbit pair produces
        ``k`` pairs. The number of new pairs produced in month ``n`` is equal
        to the number that were alive two months prior. If ``f`` is the
        function then this gives the formula:
@@ -268,8 +267,9 @@ def fibo_rabbits(n: int, k: int) -> int:
     n  : int
         The number of months elapsed.
 
-    k : int
-        The number of pairs produced by each reproduction-age rabbit pair.
+    k : int, default=1
+        Optional value for the number of pairs produced by each
+        reproduction-age rabbit pair, which defaults to ``1``.
 
     Returns
     -------
@@ -279,7 +279,17 @@ def fibo_rabbits(n: int, k: int) -> int:
 
     Examples
     --------
-    >>> fibo_rabbits(5, 3)
+    >>> fibo_rabbits(1)
+    1
+    >>> fibo_rabbits(2)
+    1
+    >>> fibo_rabbits(3)
+    2
+    >>> fibo_rabbits(4)
+    3
+    >>> fibo_rabbits(5)
+    5
+    >>> fibo_rabbits(5, k=3)
     19
     """
     # An inner Fibo generator depending on ``k`` only, that can
@@ -340,7 +350,7 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
 
 @functools.cache
 def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
-    """:py:class:`int` : Returns an integer count of the mutations in two equal-length DNA sequences.
+    """:py:class:`int` : Returns an integer count of the point-wise differences in two equal-length DNA sequences.
 
     Solution to the Counting Point Mutations problem (HAMM):
 
@@ -378,8 +388,8 @@ def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /)
 
     https://rosalind.info/problems/tran/
 
-    In two equal-length DNA sequences transitions and transversions are defined as
-    follows:
+    In two equal-length DNA sequences transitions and transversions are defined
+    as follows:
 
         transition:  A <-> G, C <-> T
         tranversion: A <-> C, A <-> T, G <-> C, G <-> T
@@ -419,7 +429,7 @@ def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /)
 
 @functools.cache
 def edit_distance(s: str, t: str, /) -> int:
-    """:py:class:`int` : Returns the edit distance (more generally called Levenshtein distance) between two DNA/RNA/protein strings/sequences.
+    """:py:class:`int` : Returns the edit distance (more generally called Levenshtein distance) between two strings/sequences.
 
     This is a solution to the Edit Distance problem (EDIT):
 
@@ -449,15 +459,15 @@ def edit_distance(s: str, t: str, /) -> int:
     Examples
     --------
     >>> edit_distance("ACGT", "AGCT")
-    2
+    Decimal('2')
     >>> edit_distance("AAGACTCTGG", "CGTTTAACTT")
-    8
+    Decimal('8')
     >>> edit_distance("ACGT", "ACGT")
-    0
+    Decimal('0')
     >>> edit_distance("ACGT", "")
-    4
+    Decimal('4')
     >>> edit_distance("", "ACGT")
-    4
+    Decimal('4')
     """
     return levenshtein_distance(s, t, insertion_cost=1, deletion_cost=1, substitution_cost=1)
 
@@ -713,18 +723,18 @@ def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[dec
     >>> seqs = ("TTTCCATTTA", "GATTCATTTC", "TTTCCATTTT", "GTTCCATTTA")
     >>> for row in sequence_distance_matrix(seqs):
     ...     print(row)
-    [0.0, Decimal('0.4'), Decimal('0.1'), Decimal('0.1')]
-    [Decimal('0.4'), 0.0, Decimal('0.4'), Decimal('0.3')]
-    [Decimal('0.1'), Decimal('0.4'), 0.0, Decimal('0.2')]
-    [Decimal('0.1'), Decimal('0.3'), Decimal('0.2'), 0.0]
+    [Decimal('0'), Decimal('0.4'), Decimal('0.1'), Decimal('0.1')]
+    [Decimal('0.4'), Decimal('0'), Decimal('0.4'), Decimal('0.3')]
+    [Decimal('0.1'), Decimal('0.4'), Decimal('0'), Decimal('0.2')]
+    [Decimal('0.1'), Decimal('0.3'), Decimal('0.2'), Decimal('0')]
     """
     n: int = len(seqs)
 
     # Set up ``n x n`` matrix of zeros - note that this construction below
     # using a list comprehension is designed to ensure that all of the zero
     # arrays are different objects in memory.
-    mat: list = []
-    [mat.append(list([0.] * n)) for i in range(n)]
+    mat: list[list[decimal.Decimal]] = []
+    [mat.append(list([Decimal('0')] * n)) for i in range(n)]
 
     # A variable to store the common sequence length from the length of the
     # 1st sequence
@@ -1152,8 +1162,8 @@ if __name__ == "__main__":      # pragma: no cover
     #
     #     PYTHONPATH="src" python3 -m doctest -v src/solutions.py
     #
-    # NOTE: the doctest examples using ``float`` or ``decimal.Decimal`` values
-    #       assume a context precision of 28 digits
+    # NOTE: the doctest examples using ``decimal.Decimal`` values assume a
+    #       context precision of 28 digits.
     decimal.getcontext().prec = 28
     import doctest
     doctest.testmod()
