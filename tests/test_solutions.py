@@ -46,8 +46,8 @@ def test_reverse_complement():
 
 
 def test_fibo_rabbits():
-    assert fibo_rabbits(n=5, k=1) == 5
-    assert fibo_rabbits(n=5, k=3) == 19
+    assert fibo_rabbits(5, k=1) == 5
+    assert fibo_rabbits(5, k=3) == 19
 
 
 def test_max_gc_content():
@@ -73,11 +73,11 @@ def test_transition_transversion_ratio():
 
 
 def test_edit_distance():
-    assert edit_distance("ACGT", "AGCT") == 2
-    assert edit_distance("AAGACTCTGG", "CGTTTAACTT") == 8
-    assert edit_distance("ACGT", "ACGT") == 0
-    assert edit_distance("ACGT", "") == 4
-    assert edit_distance("", "ACGT") == 4
+    assert edit_distance("ACGT", "AGCT") == Decimal('2')
+    assert edit_distance("AAGACTCTGG", "CGTTTAACTT") == Decimal('8')
+    assert edit_distance("ACGT", "ACGT") == Decimal('0')
+    assert edit_distance("ACGT", "") == Decimal('4')
+    assert edit_distance("", "ACGT") == Decimal('4')
 
 
 def test_translate_rna_into_protein():

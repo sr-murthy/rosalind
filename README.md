@@ -6,7 +6,7 @@ Selected Python solutions to the [ROSALIND](https://rosalind.info/) bioinformati
 Notes
 -----
 
-* The solutions are a work in progress, and will be added as time permits. All solutions are original, and the focus is not just on correctness, but also conciseness, speed/performance (or scalability), and readability. Although it is not always possible to achieve all three at once, and there is no absolute guarantee of performance for arbitrarily large inputs.
+* The solutions are a work in progress, and will be added as time permits. The implementations are based on solutions to the graded  problems on ROSALIND. The focus is not just on correctness but also conciseness, speed/performance (or scalability), and readability. Although it is not always possible to achieve all three at once, and there is no absolute guarantee of performance for arbitrarily large inputs.
 
 * [solutions.py](https://github.com/sr-murthy/rosalind/blob/main/src/solutions.py) is the main solution set, while [utils.py](https://github.com/sr-murthy/rosalind/blob/main/src/utils.py) contains generic utilities which are used in the solutions, as required.
 

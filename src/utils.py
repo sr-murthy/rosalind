@@ -19,9 +19,11 @@ Generic utilities.
 # -- IMPORTS --
 
 # -- Standard libraries --
+import decimal
 import functools
 import typing
 
+from decimal import Decimal
 from itertools import chain, permutations, product
 
 # -- 3rd party libraries --
@@ -222,11 +224,11 @@ def levenshtein_distance(
     t: str,
     /,
     *,
-    insertion_cost: int | float  = 1,
-    deletion_cost: int | float = 1,
-    substitution_cost: int | float = 1
-) -> int | float:
-    """:py:class:`int` or :py:class:`float` : Returns the Levenshtein distance between two strings.
+    insertion_cost: int | decimal.Decimal  = 1,
+    deletion_cost: int | decimal.Decimal = 1,
+    substitution_cost: int | decimal.Decimal = 1
+) -> int | decimal.Decimal:
+    """:py:class:`int` or :py:class:`~decimal.Decimal` : Returns the Levenshtein distance between two strings.
 
     This is a utility function for the Edit Distance problem (EDIT):
 
@@ -239,7 +241,8 @@ def levenshtein_distance(
 
     .. note::
 
-       This implementation accepts ``int`` or ``float``-valued cost parameters.
+       This implementation accepts ``int`` or ``decimal.Decimal``-valued cost
+       parameters.
 
     Parameters
     ----------
@@ -260,38 +263,38 @@ def levenshtein_distance(
 
     Returns
     -------
-    int or float
+    int, decimal.Decimal
         The Levenshtein distance between the two strings.
 
     Examples
     --------
     # Minimal examples with (a) insertion cost of 1 (for ``s``)
     >>> levenshtein_distance("read", "bread")
-    1
+    Decimal('1')
     >>> levenshtein_distance("bread", "read")
-    1
+    Decimal('1')
     >>> levenshtein_distance("bread", "tread")
-    1
+    Decimal('1')
     """
     # If ``s`` is empty then ``|t|`` insertions (into ``s``) are required to
     # make it equal to ``t``.
     if len(s) == 0:
-        return len(t)
+        return Decimal(len(t))
 
     # If ``t`` is empty then ``|s|`` deletions (from ``s``) are required to
     # make it equal to ``t``.
     if len(t) == 0:
-        return len(s)
+        return Decimal(len(s))
 
     # If the heads of both strings are equal there are no costs for these,
     # so compute the distance for the tails
     if s[0] == t[0]:
-        return levenshtein_distance(s[1:], t[1:])
+        return Decimal(levenshtein_distance(s[1:], t[1:]))
 
     return min(
-        insertion_cost + levenshtein_distance(s, t[1:]),        # insertion of ``t[0]`` at ``s[0]``
-        deletion_cost + levenshtein_distance(s[1:], t),         # deletion of ``s[0]``
-        substitution_cost + levenshtein_distance(s[1:], t[1:])  # substitution of ``t[0]`` for ```s[0]``
+        Decimal(insertion_cost + levenshtein_distance(s, t[1:])),        # insertion of ``t[0]`` at ``s[0]``
+        Decimal(deletion_cost + levenshtein_distance(s[1:], t)),         # deletion of ``s[0]``
+        Decimal(substitution_cost + levenshtein_distance(s[1:], t[1:]))  # substitution of ``t[0]`` for ```s[0]``
     )
 
 
@@ -399,7 +402,7 @@ def signed_permutations(n: int, /) -> typing.Generator[tuple[int], None, None]:
 
 
 def word_grams(word: str, /, *, k: int) -> typing.Generator[str, None, None]:
-    """:py:class:`typing.Generator` : Returns a generator of all 1-grams, 2-grams, ..., k-grams of a given word in lexicographic order.
+    """:py:class:`typing.Generator` : Returns a generator of all ``1``-grams, ``2``-grams, ..., ``k``-grams of a given word in lexicographic order.
     
     Utility function for the Solution to the Ordering Strings of Varying Length
     Lexicographically problem (LEXV):
@@ -409,7 +412,7 @@ def word_grams(word: str, /, *, k: int) -> typing.Generator[str, None, None]:
     Parameters
     ----------
     word : str
-        The word/string from which to generate the 1-, 2-,..., ``k``-grams.
+        The word/string from which to generate the ``1``-, ``2``-,..., ``k``-grams.
 
     k : int
         The maximum length of the word grams.
@@ -417,35 +420,35 @@ def word_grams(word: str, /, *, k: int) -> typing.Generator[str, None, None]:
     Yields
     ------
     str
-        The 1-, 2-, ... , k-grams in (lexicographic) order.
+        The ``1``-, ``2``-, ... , ``k``-grams in (lexicographic) order.
 
     Examples
     --------
     >>> list(word_grams('DNA', k=3))
     ['D', 'DD', 'DDD', 'DDN', 'DDA', 'DN', 'DND', 'DNN', 'DNA', 'DA', 'DAD', 'DAN', 'DAA', 'N', 'ND', 'NDD', 'NDN', 'NDA', 'NN', 'NND', 'NNN', 'NNA', 'NA', 'NAD', 'NAN', 'NAA', 'A', 'AD', 'ADD', 'ADN', 'ADA', 'AN', 'AND', 'ANN', 'ANA', 'AA', 'AAD', 'AAN', 'AAA']
     """
-    # Map characters in ``w`` to their (0-indexed array) indices.
-    word_charmap: dict = {char: i for i, char in enumerate(word)}
+    # Map characters in ``word`` to their (0-indexed array) indices.
+    word_charmap: dict[str, int] = {char: i for i, char in enumerate(word)}
 
     # A lexicographic scoring function for the word grams which uses the
-    # sequence character map of ``s`` to build a tuple of indices of a given
+    # sequence character map of ``word`` to build a tuple of indices of a given
     # word gram. The resulting tuples can be compared and ordered
     # lexicographically.
     def lex_score(word_gram: str | list) -> tuple[int]:
         return tuple(word_charmap[char] for char in word_gram)
 
     # Map all word grams of length at most ``k`` to their lex scores.
-    substrs: dict = {
+    word_gram_scores: dict[str, tuple[int]] = {
         ''.join(p): lex_score(p)
         for p in chain.from_iterable(product(word, repeat=j) for j in range(1, k + 1))
     }
 
     # Now sort them by their lex scores, and generate them.
-    yield from sorted(substrs, key=lambda word_gram: substrs[word_gram])
+    yield from sorted(word_gram_scores, key=lambda word_gram: word_gram_scores[word_gram])
 
 
-def word_k_grams(w: str, /, *, k: int) -> typing.Generator[str, None, None]:
-    """:py:class:`typing.Generator` : Returns a generator of all ``k``-grams of a given word ``w`` in lexicographic order.
+def word_k_grams(word: str, k: int) -> typing.Generator[str, None, None]:
+    """:py:class:`typing.Generator` : Returns a generator of all ``k``-grams of a given word ``word`` in lexicographic order.
     
     Utility function for the solution to the Enumerating k-mers
     Lexicographically problem (LEXF):
@@ -454,7 +457,7 @@ def word_k_grams(w: str, /, *, k: int) -> typing.Generator[str, None, None]:
 
     Parameters
     ----------
-    w : str
+    word : str
         The word/string from which to generate the ``k``-grams.
 
     k : int
@@ -463,7 +466,7 @@ def word_k_grams(w: str, /, *, k: int) -> typing.Generator[str, None, None]:
     Yields
     ------
     str
-        ``k``-grams of the given word ``w`` generated in (lexicographic)
+        ``k``-grams of the given word ``word`` generated in (lexicographic)
         order.
 
     Examples
@@ -471,7 +474,7 @@ def word_k_grams(w: str, /, *, k: int) -> typing.Generator[str, None, None]:
     >>> list(word_k_grams('ACGT', k=2))
     ['AA', 'AC', 'AG', 'AT', 'CA', 'CC', 'CG', 'CT', 'GA', 'GC', 'GG', 'GT', 'TA', 'TC', 'TG', 'TT']
     """
-    yield from map(lambda p: ''.join(p), product(w, repeat=k))
+    yield from map(lambda p: ''.join(p), product(word, repeat=k))
 
 
 if __name__ == "__main__":      # pragma: no cover
@@ -479,8 +482,8 @@ if __name__ == "__main__":      # pragma: no cover
     #
     #     PYTHONPATH="src" python3 -m doctest -v src/utils.py
     #
-    # NOTE: the doctest examples using ``float`` or ``decimal.Decimal`` values
-    #       assume a context precision of 28 digits
+    # NOTE: the doctest examples using ``decimal.Decimal`` values assume a
+    #       context precision of 28 digits.
     decimal.getcontext().prec = 28
     import doctest
     doctest.testmod()

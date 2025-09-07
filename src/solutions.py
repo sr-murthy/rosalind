@@ -160,9 +160,7 @@ RNA_CODON_TABLE = {
 
 @functools.cache
 def basecount(s: str | Bio.Seq.Seq, /) -> collections.Counter:
-    """:py:class:`collections.Counter` : Returns a dict of DNA bases and their counts in a given DNA sequence.
-
-    Solution to the Counting DNA Nucleotides problem (DNA):
+    """:py:class:`collections.Counter` : Solution to the Counting DNA Nucleotides problem (DNA).
 
     https://rosalind.info/problems/dna/
 
@@ -186,9 +184,7 @@ def basecount(s: str | Bio.Seq.Seq, /) -> collections.Counter:
 
 @functools.cache
 def transcribe_dna_to_rna(s: str | Bio.Seq.Seq, /) -> str:
-    """:py:class:`str` : Returns an RNA transcription of a DNA string.
-
-    Solution to the Transcribing DNA into RNA problem (RNA):
+    """:py:class:`str` : Solution to the Transcribing DNA into RNA problem (RNA).
 
     https://rosalind.info/problems/rna/
 
@@ -211,9 +207,7 @@ def transcribe_dna_to_rna(s: str | Bio.Seq.Seq, /) -> str:
 
 @functools.cache
 def reverse_complement(s: str | Bio.Seq.Seq, /) -> str:
-    """:py:class:`str` : Returns the reverse complement of a DNA string, which is the reversed string with the bases complemented.
-
-    Solution to the Complementing a Strand of DNA problem (REVC):
+    """:py:class:`str` : Solution to the Complementing a Strand of DNA problem (REVC).
 
     https://rosalind.info/problems/revc/
 
@@ -224,8 +218,7 @@ def reverse_complement(s: str | Bio.Seq.Seq, /) -> str:
 
     Returns
     -------
-    The reverse complement of an input DNA sequence: this is the original DNA
-    sequence reversed with complements taken of the nucleobases:
+    The reverse complement of an input DNA sequence:
     ::
         A -> T
         T -> A
@@ -241,10 +234,8 @@ def reverse_complement(s: str | Bio.Seq.Seq, /) -> str:
 
 
 @functools.cache
-def fibo_rabbits(n: int, k: int) -> int:
-    """:py:class:`int` : The number of rabbit pairs alive after ``n`` months, starting with 1 pair and with each reproductive-age pair producing ``k`` pairs.
-
-    Solution to the Rabbits and Recurrence Relations problem (FIB):
+def fibo_rabbits(n: int, /, *, k: int = 1) -> int:
+    """:py:class:`int` : Solution to the Rabbits and Recurrence Relations problem (FIB).
 
     https://rosalind.info/problems/fib/
 
@@ -252,7 +243,7 @@ def fibo_rabbits(n: int, k: int) -> int:
 
        In month ``n`` the number of rabbit pairs present is equal to the
        number of the previous month's pairs plus any new pairs (offspring
-       pairs). We are told that each reproductive-age rabbit pair produces
+       pairs). It is given that each reproductive-age rabbit pair produces
        ``k`` pairs. The number of new pairs produced in month ``n`` is equal
        to the number that were alive two months prior. If ``f`` is the
        function then this gives the formula:
@@ -268,8 +259,9 @@ def fibo_rabbits(n: int, k: int) -> int:
     n  : int
         The number of months elapsed.
 
-    k : int
-        The number of pairs produced by each reproduction-age rabbit pair.
+    k : int, default=1
+        Optional value for the number of pairs produced by each
+        reproduction-age rabbit pair, which defaults to ``1``.
 
     Returns
     -------
@@ -279,7 +271,17 @@ def fibo_rabbits(n: int, k: int) -> int:
 
     Examples
     --------
-    >>> fibo_rabbits(5, 3)
+    >>> fibo_rabbits(1)
+    1
+    >>> fibo_rabbits(2)
+    1
+    >>> fibo_rabbits(3)
+    2
+    >>> fibo_rabbits(4)
+    3
+    >>> fibo_rabbits(5)
+    5
+    >>> fibo_rabbits(5, k=3)
     19
     """
     # An inner Fibo generator depending on ``k`` only, that can
@@ -299,9 +301,7 @@ def fibo_rabbits(n: int, k: int) -> int:
 
 
 def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Iterable[Bio.SeqRecord.SeqRecord], /) -> tuple[str, decimal.Decimal]:
-    """:py:class:`str` : Returns a tuple containing a record ID and GC content percentage for the FASTA record with the highest GC content in a FASTA file.
-
-    Solution to the Computing GC Content problem (GC):
+    """:py:class:`str` : Solution to the Computing GC Content problem (GC).
 
     https://rosalind.info/problems/gc/
 
@@ -340,9 +340,7 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
 
 @functools.cache
 def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
-    """:py:class:`int` : Returns an integer count of the mutations in two equal-length DNA sequences.
-
-    Solution to the Counting Point Mutations problem (HAMM):
+    """:py:class:`int` : Solution to the Counting Point Mutations problem (HAMM).
 
     https://rosalind.info/problems/hamm/
 
@@ -372,14 +370,12 @@ def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
 
 @functools.cache
 def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> decimal.Decimal:
-    """:py:class:`decimal.Decimal`` : The ratio of transitions to transversions in two equal-length DNA sequences.
-
-    Solution to the Transitions and Traversions problem (TRAN):
+    """:py:class:`decimal.Decimal`` : Solution to the Transitions and Traversions problem (TRAN).
 
     https://rosalind.info/problems/tran/
 
-    In two equal-length DNA sequences transitions and transversions are defined as
-    follows:
+    In two equal-length DNA sequences transitions and transversions are defined
+    as follows:
 
         transition:  A <-> G, C <-> T
         tranversion: A <-> C, A <-> T, G <-> C, G <-> T
@@ -419,9 +415,7 @@ def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /)
 
 @functools.cache
 def edit_distance(s: str, t: str, /) -> int:
-    """:py:class:`int` : Returns the edit distance (more generally called Levenshtein distance) between two DNA/RNA/protein strings/sequences.
-
-    This is a solution to the Edit Distance problem (EDIT):
+    """:py:class:`int` : This is a solution to the Edit Distance problem (EDIT).
 
     https://rosalind.info/problems/edit/
 
@@ -449,24 +443,22 @@ def edit_distance(s: str, t: str, /) -> int:
     Examples
     --------
     >>> edit_distance("ACGT", "AGCT")
-    2
+    Decimal('2')
     >>> edit_distance("AAGACTCTGG", "CGTTTAACTT")
-    8
+    Decimal('8')
     >>> edit_distance("ACGT", "ACGT")
-    0
+    Decimal('0')
     >>> edit_distance("ACGT", "")
-    4
+    Decimal('4')
     >>> edit_distance("", "ACGT")
-    4
+    Decimal('4')
     """
     return levenshtein_distance(s, t, insertion_cost=1, deletion_cost=1, substitution_cost=1)
 
 
 @functools.cache
 def translate_rna_to_protein(s: str | Bio.Seq.Seq, /) -> str:
-    """:py:class:`str` : Returns a protein sequence encoded by an RNA seq.
-
-    Solution to the Translating RNA into Protein problem (PROT):
+    """:py:class:`str` : Solution to the Translating RNA into Protein problem (PROT).
 
     https://rosalind.info/problems/prot/
 
@@ -503,9 +495,7 @@ def translate_rna_to_protein(s: str | Bio.Seq.Seq, /) -> str:
 
 @functools.cache
 def splice_rna(s: str | Bio.Seq.Seq, introns: tuple[str | Bio.Seq.Seq], /) -> str:
-    """:py:class:`str` : Solution to the RNA Splicing problem.
-
-    Solution to the RNA Splicing problem (SPLC):
+    """:py:class:`str` : Solution to the RNA Splicing problem (SPLC).
 
     https://rosalind.info/problems/splc/
 
@@ -545,9 +535,7 @@ def splice_rna(s: str | Bio.Seq.Seq, introns: tuple[str | Bio.Seq.Seq], /) -> st
 
 @functools.cache
 def count_dna_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int]:
-    """:py:class:`tuple` : A tuple of all starting indices of occurrences of a DNA subsequence in the given DNA sequence.
-
-    Solution to the Finding a Motif in DNA problem (SUBS);
+    """:py:class:`tuple` : Solution to the Finding a Motif in DNA problem (SUBS).
 
     https://rosalind.info/problems/subs/
 
@@ -582,9 +570,7 @@ def count_dna_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int]
 
 @functools.cache
 def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[int] | typing.Literal[()]:
-    """:py:class:`tuple` or None : Returns a tuple of 1-indexed array indices of a sequence ``t`` if it is a subsequence of ``s``, or null if not.
-
-    Solution to the Finding a Spliced Motif problem (SSEQ):
+    """:py:class:`tuple` or None : Solution to the Finding a Spliced Motif problem (SSEQ).
 
     https://rosalind.info/problems/sseq/
 
@@ -624,9 +610,7 @@ def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[i
 
 @functools.cache
 def protein_mass(s: str | Bio.Seq.Seq, /) -> decimal.Decimal:
-    """:py:class:`decimal.Decimal`` : Calculates the mass of a protein sequence using the monoisotopic mass table.
-
-    Solution to the Calculating Protein Mass problem (PRTM):
+    """:py:class:`decimal.Decimal`` : Solution to the Calculating Protein Mass problem (PRTM).
 
     https://rosalind.info/problems/prtm/
 
@@ -650,9 +634,7 @@ def protein_mass(s: str | Bio.Seq.Seq, /) -> decimal.Decimal:
 
 @functools.cache
 def longest_common_shared_motif(seqs: tuple[str | Bio.Seq.Seq], /) -> str:
-    """:py:class:`str` : Returns a longest common substring among an iterable of strings.
-
-    Solution to the Finding a Shared Motif problem (LCSM):
+    """:py:class:`str` : Solution to the Finding a Shared Motif problem (LCSM).
 
     https://rosalind.info/problems/lcsm/
 
@@ -682,9 +664,7 @@ def longest_common_shared_motif(seqs: tuple[str | Bio.Seq.Seq], /) -> str:
 
 @functools.cache
 def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[decimal.Decimal]]:
-    """:py:class:`list` : Returns a (symmetric) matrix of relative Hamming distances for all (ordered) pairs of sequences from an iterable of equal-length genetic sequences.
-    
-    Solution to the Creating a Distance Matrix problem (PDST):
+    """:py:class:`list` : Solution to the Creating a Distance Matrix problem (PDST).
 
     https://rosalind.info/problems/pdst/
 
@@ -713,18 +693,18 @@ def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[dec
     >>> seqs = ("TTTCCATTTA", "GATTCATTTC", "TTTCCATTTT", "GTTCCATTTA")
     >>> for row in sequence_distance_matrix(seqs):
     ...     print(row)
-    [0.0, Decimal('0.4'), Decimal('0.1'), Decimal('0.1')]
-    [Decimal('0.4'), 0.0, Decimal('0.4'), Decimal('0.3')]
-    [Decimal('0.1'), Decimal('0.4'), 0.0, Decimal('0.2')]
-    [Decimal('0.1'), Decimal('0.3'), Decimal('0.2'), 0.0]
+    [Decimal('0'), Decimal('0.4'), Decimal('0.1'), Decimal('0.1')]
+    [Decimal('0.4'), Decimal('0'), Decimal('0.4'), Decimal('0.3')]
+    [Decimal('0.1'), Decimal('0.4'), Decimal('0'), Decimal('0.2')]
+    [Decimal('0.1'), Decimal('0.3'), Decimal('0.2'), Decimal('0')]
     """
     n: int = len(seqs)
 
     # Set up ``n x n`` matrix of zeros - note that this construction below
     # using a list comprehension is designed to ensure that all of the zero
     # arrays are different objects in memory.
-    mat: list = []
-    [mat.append(list([0.] * n)) for i in range(n)]
+    mat: list[list[decimal.Decimal]] = []
+    [mat.append(list([Decimal('0')] * n)) for i in range(n)]
 
     # A variable to store the common sequence length from the length of the
     # 1st sequence
@@ -738,16 +718,9 @@ def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[dec
         j = i
         # The inner loop on columns
         while j < n:
-            # if row and column indices are equal, there's nothing to do, so
-            # increment column index and continue to next iteration
-            if i == j:
-                j += 1
-                continue
-            # otherwise it must be that ``i < j``, in which case set
-            # the Hamming distance of the current sequence pair ``(i, j)``,
-            # and use the the same value for the transposed entry ``(j, i)``,
-            # avoiding another calculation.
-            else:
+            # if row index < column index then compute the value, and store it
+            # as the ``(i, j)``-th and ``(j, i)``-th entries.
+            if i < j:
                 mat[i][j] = Decimal(point_mutations(seqs[i], seqs[j])) / Decimal(m)
                 mat[j][i] = mat[i][j]
             j += 1
@@ -758,9 +731,7 @@ def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[dec
 
 @functools.cache
 def consensus_string(seqs: tuple[str | Bio.Seq.Seq]) -> tuple[str, list[int]]:
-    """:py:class:`tuple` : Returns the consensus string and profile matrix for a collection of equal-lenth DNA sequences/strings.
-
-    Solution to the Consensus and Profile problem (CONS):
+    """:py:class:`tuple` : Solution to the Consensus and Profile problem (CONS).
 
     https://rosalind.info/problems/cons/
 
@@ -826,9 +797,7 @@ def consensus_string(seqs: tuple[str | Bio.Seq.Seq]) -> tuple[str, list[int]]:
 
 
 def overlap_graph(seqs: typing.Iterable[Bio.SeqRecord.SeqRecord], k: int, /) -> tuple[tuple[str, str]]:
-    """:py:class:`tuple` : Returns a tuple of edges of the ``O_k`` overlap graph of a tuple of DNA sequences/strings.
-
-    Solution to the Overlap Graphs problem (GRPH):
+    """:py:class:`tuple` : Solution to the Overlap Graphs problem (GRPH).
 
     https://rosalind.info/problems/grph/
 
@@ -877,9 +846,7 @@ def overlap_graph(seqs: typing.Iterable[Bio.SeqRecord.SeqRecord], k: int, /) -> 
 
 
 def oriented_gene_orderings(n: int, /) -> typing.Generator[tuple[int], None, None]:
-    """:py:class:`typing.Generator` : Solution to the SIGN problem.
-
-    Solution to the Enumerating Oriented Gene Orderings problem (SIGN):
+    """:py:class:`typing.Generator` : Solution to the Enumerating Oriented Gene Orderings problem (SIGN).
 
     https://rosalind.info/problems/sign/
 
@@ -902,9 +869,7 @@ def oriented_gene_orderings(n: int, /) -> typing.Generator[tuple[int], None, Non
 
 
 def lexicographic_kmers(s: str, k: int) -> typing.Generator[str, None, None]:
-    """:py:class:`typing.Generator` : Returns a generator of ``k``-length substrings formed from subsequences of a given sequence of characters.
-    
-    Solution to the Enumerating k-mers Lexicographically problem (LEXF):
+    """:py:class:`typing.Generator` : Solution to the Enumerating k-mers Lexicographically problem (LEXF).
 
     https://rosalind.info/problems/lexf/
 
@@ -933,9 +898,7 @@ def lexicographic_kmers(s: str, k: int) -> typing.Generator[str, None, None]:
 
 
 def kmer_composition(s: str | Bio.Seq.Seq, A: str, k: int) -> typing.Generator[int, None, None]:
-    """:py:class:`typing.Generator` : Generates the ``k``-mer composition of a string with respect to an (ordered) alphabet.
-
-    Solution to the k-Mer Composition problem (KMER):
+    """:py:class:`typing.Generator` : Solution to the k-Mer Composition problem (KMER).
 
     https://rosalind.info/problems/kmer/
 
@@ -972,9 +935,7 @@ def kmer_composition(s: str | Bio.Seq.Seq, A: str, k: int) -> typing.Generator[i
 
 
 def variable_length_lexicographic_ordering(s: str, k: int) -> typing.Generator[str, None, None]:
-    """:py:class:`typing.Generator` : Returns a generator of lexicographically ordered, variable-length substrings ,of size at most ``k`` , of a given string / sequence.
-    
-    Solution to the Ordering Strings of Varying Length Lexicographically problem (LEXV):
+    """:py:class:`typing.Generator` : Solution to the Ordering Strings of Varying Length Lexicographically problem (LEXV).
 
     https://rosalind.info/problems/lexv/
 
@@ -1002,9 +963,7 @@ def variable_length_lexicographic_ordering(s: str, k: int) -> typing.Generator[s
 
 @functools.cache
 def linguistic_sequence_complexity(s: str, A: str, /) -> decimal.Decimal:
-    """:py:class:`float` : Returns the linguistic complexity (LC) of a string ``s`` formed over an alphabet ``A``.
-
-    Solution to the Linguistic Complexity of a Genome problem (LING):
+    """:py:class:`float` : Solution to the Linguistic Complexity of a Genome problem (LING).
 
     https://rosalind.info/problems/ling/
 
@@ -1063,9 +1022,7 @@ def linguistic_sequence_complexity(s: str, A: str, /) -> decimal.Decimal:
 
 @functools.cache
 def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float | decimal.Decimal], /, *, roundto: int = 3) -> tuple[decimal.Decimal]:
-    """:py:class:`tuple` : An array of common logarithms of probabilities determined by a given string and an array of possible GC content values.
-
-    Solution to the Introduction to Random Strings problem (PROB):
+    """:py:class:`tuple` : Solution to the Introduction to Random Strings problem (PROB).
 
     https://rosalind.info/problems/prob/
 
@@ -1152,8 +1109,8 @@ if __name__ == "__main__":      # pragma: no cover
     #
     #     PYTHONPATH="src" python3 -m doctest -v src/solutions.py
     #
-    # NOTE: the doctest examples using ``float`` or ``decimal.Decimal`` values
-    #       assume a context precision of 28 digits
+    # NOTE: the doctest examples using ``decimal.Decimal`` values assume a
+    #       context precision of 28 digits.
     decimal.getcontext().prec = 28
     import doctest
     doctest.testmod()
