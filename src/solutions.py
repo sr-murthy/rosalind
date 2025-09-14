@@ -131,11 +131,11 @@ RNA_CODON_TABLE = {
     'CAC': 'H',
     'AAC': 'N',
     'GAC': 'D',
-    'UAA': '',
+    'UAA': 'STOP',
     'CAA': 'Q',
     'AAA': 'K',
     'GAA': 'E',
-    'UAG': '',
+    'UAG': 'STOP',
     'CAG': 'Q',
     'AAG': 'K',
     'GAG': 'E',
@@ -147,7 +147,7 @@ RNA_CODON_TABLE = {
     'CGC': 'R',
     'AGC': 'S',
     'GGC': 'G',
-    'UGA': '',
+    'UGA': 'STOP',
     'CGA': 'R',
     'AGA': 'R',
     'GGA': 'G',
@@ -156,6 +156,49 @@ RNA_CODON_TABLE = {
     'AGG': 'R',
     'GGG': 'G'
 }
+
+
+DNA_CODON_TABLE = {
+    'GCT': 'A',
+    'GCC': 'A',
+    'GCA': 'A',
+    'GCG': 'A',
+    'CGC': 'A',
+    'TTA': 'L',
+    'TTG': 'L',
+    'CTG': 'L',
+    'CGT': 'R',
+    'CGG': 'R',
+    'AGA': 'R',
+    'AGG': 'R',
+    'AAA': 'K',
+    'AAG': 'K',
+    'AAT': 'N',
+    'AAC': 'N',
+    'ATG': 'M',
+    'ATA': 'M',
+    'GAT': 'D',
+    'GAC': 'D',
+    'TTT': 'F',
+    'TTC': 'F',
+    'TGT': 'C',
+    'TGC': 'C',
+P: CCT CCC CCA CCG
+Q: CAA CAG
+S: TCT TCC TCA TCG AGT AGC CGA
+E: GAA GAG
+T: ACT ACC ACA ACG CTT CTC CTA
+G: GGT GGC GGA GGG
+W: TGG TGA
+H: CAT CAC
+Y: TAT TAC
+I: ATT ATC
+V: GTT GTC GTA GTG
+START: ATG
+STOP: TAA TAG
+}
+
+
 
 
 @functools.cache
@@ -462,11 +505,6 @@ def translate_rna_to_protein(s: str | Bio.Seq.Seq, /) -> str:
 
     https://rosalind.info/problems/prot/
 
-    .. note::
-
-       An assumption is made that the length of the RNA sequence is a multiple
-       of 3, as codons in the RNA codon table are all of length 3.
-
     Parameters
     ----------
     s : str, Bio.Seq.Seq
@@ -475,22 +513,25 @@ def translate_rna_to_protein(s: str | Bio.Seq.Seq, /) -> str:
     Returns
     -------
     str
-        The protein sequence encoded by the RNA sequence.
+        The translated sequence.
 
     Examples
     --------
     >>> translate_rna_to_protein("AUGGCCAUGGCGCCCAGAACUGAGAUCAAUAGUACCCGUAUUAACGGGUGA")
     'MAMAPRTEINSTRING'
     """
-    encoding: str = ''
+    protein_sequence: str = ''
     i: int = 0
+    codon: str = s[i: i + 3]
 
-    while i < len(s) - 2:
-        codon: str = s[i: i + 3]
-        encoding += RNA_CODON_TABLE[codon]
+    while i < len(s) - 2 and codon != 'STOP':
+        lookup: str = RNA_CODON_TABLE[codon]
+        if lookup != 'STOP':
+            protein_sequence += lookup
         i += 3
+        codon = s[i: i + 3]
 
-    return encoding
+    return protein_sequence
 
 
 @functools.cache
