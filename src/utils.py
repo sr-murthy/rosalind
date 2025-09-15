@@ -224,10 +224,10 @@ def levenshtein_distance(
     t: str,
     /,
     *,
-    insertion_cost: int | decimal.Decimal  = 1,
-    deletion_cost: int | decimal.Decimal = 1,
-    substitution_cost: int | decimal.Decimal = 1
-) -> int | decimal.Decimal:
+    insertion_cost: int | Decimal  = 1,
+    deletion_cost: int | Decimal = 1,
+    substitution_cost: int | Decimal = 1
+) -> int | Decimal:
     """:py:class:`int` or :py:class:`~decimal.Decimal` : Returns the Levenshtein distance between two strings.
 
     This is a utility function for the Edit Distance problem (EDIT):

@@ -158,49 +158,6 @@ RNA_CODON_TABLE = {
 }
 
 
-DNA_CODON_TABLE = {
-    'GCT': 'A',
-    'GCC': 'A',
-    'GCA': 'A',
-    'GCG': 'A',
-    'CGC': 'A',
-    'TTA': 'L',
-    'TTG': 'L',
-    'CTG': 'L',
-    'CGT': 'R',
-    'CGG': 'R',
-    'AGA': 'R',
-    'AGG': 'R',
-    'AAA': 'K',
-    'AAG': 'K',
-    'AAT': 'N',
-    'AAC': 'N',
-    'ATG': 'M',
-    'ATA': 'M',
-    'GAT': 'D',
-    'GAC': 'D',
-    'TTT': 'F',
-    'TTC': 'F',
-    'TGT': 'C',
-    'TGC': 'C',
-P: CCT CCC CCA CCG
-Q: CAA CAG
-S: TCT TCC TCA TCG AGT AGC CGA
-E: GAA GAG
-T: ACT ACC ACA ACG CTT CTC CTA
-G: GGT GGC GGA GGG
-W: TGG TGA
-H: CAT CAC
-Y: TAT TAC
-I: ATT ATC
-V: GTT GTC GTA GTG
-START: ATG
-STOP: TAA TAG
-}
-
-
-
-
 @functools.cache
 def basecount(s: str | Bio.Seq.Seq, /) -> collections.Counter:
     """:py:class:`collections.Counter` : Solution to the Counting DNA Nucleotides problem (DNA).
@@ -343,7 +300,7 @@ def fibo_rabbits(n: int, /, *, k: int = 1) -> int:
             return x
 
 
-def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Iterable[Bio.SeqRecord.SeqRecord], /) -> tuple[str, decimal.Decimal]:
+def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Iterable[Bio.SeqRecord.SeqRecord], /) -> tuple[str, Decimal]:
     """:py:class:`str` : Solution to the Computing GC Content problem (GC).
 
     https://rosalind.info/problems/gc/
@@ -367,7 +324,7 @@ def max_gc_content(fasta_records: Bio.SeqIO.FastaIO.FastaIterator | typing.Itera
     >>> max_gc_content(SeqIO.parse("./rosalind_gc.txt", "fasta"))  # doctest: +SKIP
     ('Rosalind_6344', Decimal('51.68884339815762'))                # doctest: +SKIP
     """
-    def gc_content(s: str | Bio.Seq.Seq, /) -> decimal.Decimal:
+    def gc_content(s: str | Bio.Seq.Seq, /) -> Decimal:
         return Decimal(sum(1 for base in s if base in ['C', 'G'])) / Decimal(len(s))
 
     sorted_gc_contents: dict[str, Decimal] = sorted(
@@ -412,7 +369,7 @@ def point_mutations(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> int:
 
 
 @functools.cache
-def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> decimal.Decimal:
+def transition_transversion_ratio(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> Decimal:
     """:py:class:`decimal.Decimal`` : Solution to the Transitions and Traversions problem (TRAN).
 
     https://rosalind.info/problems/tran/
@@ -650,7 +607,7 @@ def find_spliced_motif(s: str | Bio.Seq.Seq, t: str | Bio.Seq.Seq, /) -> tuple[i
 
 
 @functools.cache
-def protein_mass(s: str | Bio.Seq.Seq, /) -> decimal.Decimal:
+def protein_mass(s: str | Bio.Seq.Seq, /) -> Decimal:
     """:py:class:`decimal.Decimal`` : Solution to the Calculating Protein Mass problem (PRTM).
 
     https://rosalind.info/problems/prtm/
@@ -704,7 +661,7 @@ def longest_common_shared_motif(seqs: tuple[str | Bio.Seq.Seq], /) -> str:
 
 
 @functools.cache
-def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[decimal.Decimal]]:
+def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[Decimal]]:
     """:py:class:`list` : Solution to the Creating a Distance Matrix problem (PDST).
 
     https://rosalind.info/problems/pdst/
@@ -744,7 +701,7 @@ def sequence_distance_matrix(seqs: tuple[str | Bio.Seq.Seq], /) -> list[list[dec
     # Set up ``n x n`` matrix of zeros - note that this construction below
     # using a list comprehension is designed to ensure that all of the zero
     # arrays are different objects in memory.
-    mat: list[list[decimal.Decimal]] = []
+    mat: list[list[Decimal]] = []
     [mat.append(list([Decimal('0')] * n)) for i in range(n)]
 
     # A variable to store the common sequence length from the length of the
@@ -1003,7 +960,7 @@ def variable_length_lexicographic_ordering(s: str, k: int) -> typing.Generator[s
 
 
 @functools.cache
-def linguistic_sequence_complexity(s: str, A: str, /) -> decimal.Decimal:
+def linguistic_sequence_complexity(s: str, A: str, /) -> Decimal:
     """:py:class:`float` : Solution to the Linguistic Complexity of a Genome problem (LING).
 
     https://rosalind.info/problems/ling/
@@ -1062,7 +1019,7 @@ def linguistic_sequence_complexity(s: str, A: str, /) -> decimal.Decimal:
 
 
 @functools.cache
-def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float | decimal.Decimal], /, *, roundto: int = 3) -> tuple[decimal.Decimal]:
+def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float | Decimal], /, *, roundto: int = 3) -> tuple[Decimal]:
     """:py:class:`tuple` : Solution to the Introduction to Random Strings problem (PROB).
 
     https://rosalind.info/problems/prob/
@@ -1126,20 +1083,22 @@ def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float | decimal.Decimal], 
     """
     # A function to build a frequency table for the bases based on the given
     # GC content.
-    def base_frequency_table(gc_content: decimal.Decimal) -> dict[str, decimal.Decimal]:
-        x: decimal.Decimal = Decimal(gc_content)
+    def base_frequency_table(gc_content: Decimal) -> dict[str, Decimal]:
+        x: Decimal = Decimal(gc_content)
+        x_half: Decimal = x / 2
+        x_complement_half: Decimal = Decimal('0.5') - x_half
 
         return {
-            'A': (1 - x) / 2,
-            'C': x / 2,
-            'G': x / 2,
-            'T': (1 - x) / 2
+            'A': x_complement_half,
+            'C': x_half,
+            'G': x_half,
+            'T': x_complement_half
         }
 
-    logs: list[decimal.Decimal] = []
+    logs: list[Decimal] = []
 
     for gc_content in A:
-        table: dict[str, decimal.Decimal] = base_frequency_table(Decimal(gc_content))
+        table: dict[str, Decimal] = base_frequency_table(Decimal(gc_content))
         logs.append(round(Decimal(sum(math.log10(table[base]) for base in s)), roundto))
 
     return tuple(logs)
