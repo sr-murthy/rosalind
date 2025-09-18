@@ -64,26 +64,26 @@ from utils import (
 #:
 #:  https://rosalind.info/glossary/monoisotopic-mass-table/
 MONOISOTOPIC_MASS_TABLE = {
-    "A":   71.03711,
-    "C":   103.00919,
-    "D":   115.02694,
-    "E":   129.04259,
-    "F":   147.06841,
-    "G":   57.02146,
-    "H":   137.05891,
-    "I":   113.08406,
-    "K":   128.09496,
-    "L":   113.08406,
-    "M":   131.04049,
-    "N":   114.04293,
-    "P":   97.05276,
-    "Q":   128.05858,
-    "R":   156.10111,
-    "S":   87.03203,
-    "T":   101.04768,
-    "V":   99.06841,
-    "W":   186.07931,
-    "Y":   163.06333 
+    "A":   Decimal('71.03711'),
+    "C":   Decimal('103.00919'),
+    "D":   Decimal('115.02694'),
+    "E":   Decimal('129.04259'),
+    "F":   Decimal('147.06841'),
+    "G":   Decimal('57.02146'),
+    "H":   Decimal('137.05891'),
+    "I":   Decimal('113.08406'),
+    "K":   Decimal('128.09496'),
+    "L":   Decimal('113.08406'),
+    "M":   Decimal('131.04049'),
+    "N":   Decimal('114.04293'),
+    "P":   Decimal('97.05276'),
+    "Q":   Decimal('128.05858'),
+    "R":   Decimal('156.10111'),
+    "S":   Decimal('87.03203'),
+    "T":   Decimal('101.04768'),
+    "V":   Decimal('99.06841'),
+    "W":   Decimal('186.07931'),
+    "Y":   Decimal('163.06333') 
 }
 
 
@@ -247,9 +247,10 @@ def fibo_rabbits(n: int, /, *, k: int = 1) -> int:
        ``k`` pairs. The number of new pairs produced in month ``n`` is equal
        to the number that were alive two months prior. If ``f`` is the
        function then this gives the formula:
-       ::
+       
+       .. math::
 
-            f(n, k) = f(n - 1, k) + 3 * f(n - 2, k)
+          f(n, k) = f(n - 1, k) + 3 \\times f(n - 2, k)
 
     This solution is iterative (and non-recursive), to avoid recursion errors
     caused by large values of ``n``.
@@ -627,7 +628,7 @@ def protein_mass(s: str | Bio.Seq.Seq, /) -> Decimal:
     >>> round(protein_mass("SKADYEK"), 5)
     Decimal('821.39192')
     """
-    return Decimal(sum(MONOISOTOPIC_MASS_TABLE[char] for char in s))
+    return sum(MONOISOTOPIC_MASS_TABLE[char] for char in s)
 
 
 @functools.cache
@@ -1034,24 +1035,8 @@ def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float | Decimal], /, *, ro
 
     Returns an array :math:`B` having the same length as :math:`A` in which
     :math:`B[i]` represents the common logarithm (:math:`log_10`) of the
-    probability that a random string :math:`s`
-    constructed with the GC-content found in :math:`A[i]` will match
-    :math:`s` exactly.
-
-    If :math:`s` is :math:`s_0s_1 \\cdots s_{n - 1}` then the probability that
-    a random string with a GC content :math:`x` will match :math:`s` exactly
-    is given by:
-
-    .. math::
-
-       \\begin{align}
-       \\prod_{i=0}^{n - 1} P(s_i) &= \\sum_{i=0}^n P(s_i) \\
-                             &= (n_A + n_T)\\frac{x}{2} + (n_C + n_G)\\frac{(1 - x)}{2}
-       \\end{align}
-
-    where :math:`n_A, n_C, n_G, n_T` are the base counts of :math:`s`, and
-    :math:`P(s_0),\\ldots,P(s_{n - 1})` are the probabilities of the letters
-    of :math:`s`.
+    probability that a random DNA string :math:`s` constructed with the
+    GC-content value of :math:`A[i]` will match :math:`s` exactly.
 
     Parameters
     ----------
@@ -1098,8 +1083,9 @@ def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float | Decimal], /, *, ro
     logs: list[Decimal] = []
 
     for gc_content in A:
-        table: dict[str, Decimal] = base_frequency_table(Decimal(gc_content))
-        logs.append(round(Decimal(sum(math.log10(table[base]) for base in s)), roundto))
+        freq_table: dict[str, Decimal] = base_frequency_table(Decimal(gc_content))
+        sum_of_log_probs: Decimal = sum(Decimal(math.log10(freq_table[base])) for base in s)
+        logs.append(round(sum_of_log_probs, roundto))
 
     return tuple(logs)
 
