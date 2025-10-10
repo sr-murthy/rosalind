@@ -1080,8 +1080,10 @@ def random_dna_strings(s: str | Bio.Seq.Seq, A: tuple[float | Decimal], /, *, ro
             'T': x_complement_half
         }
 
+    # The list of logarithms of probabilities
     logs: list[Decimal] = []
 
+    # The main loop over the GC contents array
     for gc_content in A:
         freq_table: dict[str, Decimal] = base_frequency_table(Decimal(gc_content))
         sum_of_log_probs: Decimal = sum(Decimal(math.log10(freq_table[base])) for base in s)

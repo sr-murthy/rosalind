@@ -397,7 +397,9 @@ def signed_permutations(n: int, /) -> typing.Generator[tuple[int], None, None]:
     """
     yield from chain.from_iterable(
         permutations(p)
-        for p in product(*([k, -k] for k in range(1, n + 1)))
+        for p in product(
+            *([k, -k] for k in range(1, n + 1))
+        )
     )
 
 
@@ -440,11 +442,16 @@ def word_grams(word: str, /, *, k: int) -> typing.Generator[str, None, None]:
     # Map all word grams of length at most ``k`` to their lex scores.
     word_gram_scores: dict[str, tuple[int]] = {
         ''.join(p): lex_score(p)
-        for p in chain.from_iterable(product(word, repeat=j) for j in range(1, k + 1))
+        for p in chain.from_iterable(
+            product(word, repeat=j) for j in range(1, k + 1)
+        )
     }
 
     # Now sort them by their lex scores, and generate them.
-    yield from sorted(word_gram_scores, key=lambda word_gram: word_gram_scores[word_gram])
+    yield from sorted(
+        word_gram_scores,
+        key=lambda word_gram: word_gram_scores[word_gram]
+    )
 
 
 def word_k_grams(word: str, k: int) -> typing.Generator[str, None, None]:
